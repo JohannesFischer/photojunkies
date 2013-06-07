@@ -1,0 +1,145 @@
+/*
+ * LESS Vars
+ * --------------------------------------------------------------- */
+
+@default: #f938ab;
+
+/*
+ * Base Styling
+ * --------------------------------------------------------------- */
+
+body {
+	background: #191919;
+}
+.contain-to-grid .top-bar {
+	margin-bottom: 0;
+}
+
+/*
+ * Icons
+ * --------------------------------------------------------------- */
+
+.icon {
+	background-position: 0 50%;
+	background-repeat: no-repeat;
+	padding-left: 20px;
+}
+.tags {
+	background-image: url(../images/icons/comment_alt2_fill_14x16.png);
+}
+
+/*
+ * Page
+ * --------------------------------------------------------------- */
+
+.page-content {
+	background: #fff;
+	margin-bottom: 40px;
+}
+
+/*
+ * BlogHolder
+ * --------------------------------------------------------------- */
+
+.blog-holder {
+	background: #fff;
+	margin-bottom: 40px;
+	padding-bottom: 20px;
+}
+
+.blog-summary {
+	margin-bottom: 20px;	
+	h2 {
+		border-bottom: 1px solid #aaa;
+		margin-bottom: 15px;
+	}
+	img {
+		max-width: 100%
+	}
+}
+
+/*
+ * BlogEntry
+ * --------------------------------------------------------------- */
+
+.blog-header {
+	background-position: top center;
+	height: 300px;
+	.columns {
+		margin-top: 70px;
+	}
+	h2 {
+		border-bottom: 1px solid #fff;
+		padding-bottom: 10px;
+		text-transform: uppercase;
+	}
+	h2,
+	p {
+		color: #fff;
+		text-shadow: 1px 1px 3px rgba(100, 100, 100, .75);
+		text-align: center;
+	}
+}
+
+.blog-content {
+	background: #fff;
+	box-shadow: 0 -5px 10px rgba(100, 100, 100, .5);
+	margin-bottom: 40px;
+	margin-top: -50px;
+	div.blogEntry {
+		margin-top: 50px;
+	}
+}
+
+/*
+ * BlogEntry
+ * --------------------------------------------------------------- */
+
+footer {
+	background: #111;
+	.large-6 {
+		margin-bottom: 20px;
+		margin-top: 20px;
+	}
+	.copy {
+		background: #000;
+		p {
+			margin: 10px 0;
+		}
+	}
+}
+
+/*
+ * Comments
+ * --------------------------------------------------------------- */
+
+#Form_CommentsForm {
+	}
+	#Form_CommentsForm label {
+		display: block;
+		float: none;
+		margin-bottom: 5px;
+	}
+	.middleColumn {
+		clear: both;
+	}
+	#Form_CommentsForm textarea {
+		height: 80px;
+	}
+
+#comments-holder .comments-holder {
+	margin: 0 0 20px;
+}
+.comments-list {
+	list-style: none;
+}
+#comments-holder .comment p {
+	background: url(../images/icons/quotes.png) no-repeat 0 5px;
+	margin: 0 0 5px;
+	padding: 0 0 0 30px;
+}
+#comments-holder p.info {
+	background: none;
+	font-weight: bold;
+	padding: 0;
+}
