@@ -1,0 +1,30 @@
+<?php
+
+global $project;
+$project = 'mysite';
+
+global $databaseConfig;
+$databaseConfig = array(
+	"type" => 'MySQLDatabase',
+	"server" => '',
+	"username" => '',
+	"password" => '',
+	"database" => '',
+	"path" => '',
+);
+
+MySQLDatabase::set_connection_charset('utf8');
+
+// Set the current theme
+SSViewer::set_theme('blog');
+
+// Set the site locale
+i18n::set_locale('en_US');
+
+// Enable nested URLs for this site (e.g. page/sub-page/)
+if (class_exists('SiteTree')) SiteTree::enable_nested_urls();
+
+GD::set_default_quality(95);
+
+//Force redirect to www.
+Director::forceWWW();
