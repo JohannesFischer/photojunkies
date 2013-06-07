@@ -15,12 +15,14 @@ See [doc.silverstripe.org](http://doc.silverstripe.org/framework/en/installation
 See [installation on different platforms](http://doc.silverstripe.org/framework/en/installation/),
 and [installation from source](http://doc.silverstripe.org/framework/en/installation/from-source).
 
+## Update with Composer ##
+
+	composer update --no-dev
+
 ## Links ##
 
  * [Changelogs](http://doc.silverstripe.org/framework/en/changelogs/)
- * [Bugtracker](http://open.silverstripe.org)
  * [Forums](http://silverstripe.org/forums)
- * [Developer Mailinglist](https://groups.google.com/forum/#!forum/silverstripe-dev)
 
 ## License ##
 
