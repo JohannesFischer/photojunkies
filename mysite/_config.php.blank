@@ -16,7 +16,7 @@ $databaseConfig = array(
 MySQLDatabase::set_connection_charset('utf8');
 
 // Set the current theme
-SSViewer::set_theme('blog');
+SSViewer::set_theme('photoblog');
 
 // Set the site locale
 i18n::set_locale('en_US');
