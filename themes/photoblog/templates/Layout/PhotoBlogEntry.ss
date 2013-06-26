@@ -17,7 +17,7 @@
 				<ul data-orbit>
 					<% loop Images %>
 						<li>
-							<img src="$Image.PaddedImage(940, 500).URL">
+							<img src="$Image.PaddedImage(970, 650).URL">
 							<% if $Title || $Description %><div class="orbit-caption"><strong>$Title</strong> $Description</div><% end_if %>
 						</li>			
 					<% end_loop %>
