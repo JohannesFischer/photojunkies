@@ -32,5 +32,9 @@ class Page_Controller extends ContentController {
 	public function getEntryImage() {
 		return BlogImage::get()->filter('BlogEntryID', $this->ID)->First();
 	}
+	
+	public function IsNotOne($i = 0) {
+		return $i != 1;
+	}
 
 }
