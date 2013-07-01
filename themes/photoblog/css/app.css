@@ -9,8 +9,14 @@ body {
   background-repeat: no-repeat;
   padding-left: 20px;
 }
-.tags {
+.comments {
   background-image: url(../images/icons/comment_alt2_fill_14x16.png);
+}
+.read-more {
+  background-image: url(../images/icons/read_more_12x12.png);
+}
+.tags {
+  background-image: url(../images/icons/tag_fill_16x16.png);
 }
 .page-content {
   background: #fff;
@@ -24,12 +30,50 @@ body {
 .blog-summary {
   margin-bottom: 20px;
 }
-.blog-summary h2 {
-  border-bottom: 1px solid #aaa;
-  margin-bottom: 15px;
+.blog-summary .icon {
+  margin: 0;
 }
-.blog-summary img {
+.blogentry-preview {
+  min-height: 200px;
+  position: relative;
+}
+.blogentry-preview .blogentry-summary {
+  background: rgba(100,100,100,0.4);
+  left: 5%;
+  max-height: 90%;
+  overflow: hidden;
+  padding: 5px;
+  position: absolute;
+  text-overflow: ellipsis;
+  top: 5%;
+  width: 40%;
+}
+.blogentry-preview .blogentry-summary h2 {
+  margin-bottom: 5px;
+}
+.blogentry-preview .blogentry-summary h2 a {
+  color: #fff;
+}
+.blogentry-preview .blogentry-summary img {
   max-width: 100%;
+}
+.blogentry-preview .blogentry-summary p,
+.blogentry-preview .blogentry-summary .read-more a {
+  color: #fff;
+}
+.blogentry-preview .blogentry-summary .blog-summary-date {
+  border-bottom: 1px solid #fff;
+  font-size: small;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+}
+.blogentry-preview .blogentry-summary .first-paragraph {
+  max-height: 60%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pagination {
+  margin-top: 20px;
 }
 .blog-header {
   background-position: top center;
@@ -97,4 +141,24 @@ footer .copy p {
   background: none;
   font-weight: bold;
   padding: 0;
+}
+@media only screen and (max-width: 767px) {
+  .blogentry-preview .blogentry-summary {
+    width: 60%;
+  }
+}
+@media only screen and (max-width: 480px) {
+  .hide-on-small-screens {
+    display: none;
+  }
+  .blogentry-preview .blogentry-summary {
+    width: 90%;
+  }
+  .blogentry-preview .read-more {
+    width: 100%;
+  }
+  .blogentry-preview h2,
+  .blogentry-preview .blog-summary-date {
+    text-align: center;
+  }
 }

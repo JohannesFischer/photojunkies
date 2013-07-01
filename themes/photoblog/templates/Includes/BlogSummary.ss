@@ -1,23 +1,33 @@
 <div class="blog-summary">
+	
 	<div class="columns large-12">
-		<h2 class="postTitle">
-			<a href="$Link" title="<% _t('VIEWFULL', 'View full post -') %> $Title">$MenuTitle</a>
-		</h2>
+		<div class="blogentry-preview">
+			<% loop $Images %>
+				<% if First %>
+					<img src="$Image.setWidth(980).URL" alt="Image: $Title">
+				<% end_if %>
+			<% end_loop %>
+			<div class="blogentry-summary">
+				<h2 class="postTitle">
+					<a href="$Link" title="<% _t('VIEWFULL', 'View full post -') %> $Title">$MenuTitle</a>
+				</h2>
+				<p class="blog-summary-date">$Author.XML, $Date.Format('M d Y')</p>
+				<p class="first-paragraph hide-on-small-screens">$Content.FirstParagraph</p>
+				<p class="icon read-more hide-on-small-screens">
+					<a href="$Link">Read the full post</a>
+				</p>
+			</div>
+		</div>
 	</div>
 	
-	<!-- BlogHolder.ShowFullEntry -> disable this shit -->
-	<div class="columns large-5">
-		<% loop $Images %>
-			<% if First %>
-				<a href="$Top.Link">
-					<img src="$Image.setWidth(400).URL" alt="Image: $Title">
-				</a>
-			<% end_if %>
-		<% end_loop %>
+	<!--
+	<div class="columns large-12">
+		<p class="icon comments">
+			<a href="$Link#comments-holder" title="View Comments Posted">$Comments.Count <% _t('COMMENTS', 'Comments') %></a>
+		</p>
 	</div>
-	<div class="columns large-7">
-		<p class="authorDate"><% _t('POSTEDBY', 'Posted by') %> $Author.XML <% _t('POSTEDON', 'on') %> $Date.Long | <a href="$Link#comments-holder" title="View Comments Posted">$Comments.Count <% _t('COMMENTS', 'Comments') %></a></p>
-		<p class="first-paragraph">$Content.FirstParagraph</p>
+	
+	<div class="columns large-6">
 		<% if TagsCollection %>
 			<p class="icon tags" title="Tags">
 				<% loop TagsCollection %>
@@ -25,9 +35,7 @@
 				<% end_loop %>
 			</p>
 		<% end_if %>
-		<p class="read-more">
-			<a href="$Link">Read the full post</a>
-		</p>
 	</div>
+	-->
 	
 </div>
