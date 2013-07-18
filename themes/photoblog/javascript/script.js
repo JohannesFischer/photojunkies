@@ -8,5 +8,9 @@ jQuery.noConflict();
 			return false;
 		});
 		
+		jQuery('input.action').each(function () {
+			jQuery(this).addClass('button');	
+		});
+		
 	});
 }(jQuery));
