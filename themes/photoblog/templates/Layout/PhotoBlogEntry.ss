@@ -30,7 +30,7 @@
 							<strong>$FirstImage.Title</strong> $FirstImage.Description
 						</p>
 					<% end_if %>
-					<a href="$FirstImage.Image.URL" class="button new-window">Originalbild runterladen</a>
+					<a href="$FirstImage.Image.URL" class="button new-window small">Originalbild runterladen</a>
 				</div>
 			<% end_if %>
 			
