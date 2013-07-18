@@ -10,8 +10,13 @@ class Page extends SiteTree {
 }
 class Page_Controller extends ContentController {
 
+	public $FontFamily;
+
 	public function init() {
 		parent::init();
+		
+		// Google Font Family
+		$this->FontFamily = 'Numans';
 		
 		$theme_folder = 'themes/' . SSViewer::current_theme();
 		$css_folder = $theme_folder . '/css/';
@@ -35,6 +40,10 @@ class Page_Controller extends ContentController {
 	
 	public function IsNotOne($i = 0) {
 		return $i != 1;
+	}
+	
+	public function getFontFamily() {
+		return $this->FontFamily;
 	}
 
 }
