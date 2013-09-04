@@ -40,4 +40,8 @@ class PhotoBlogHolder_Controller extends BlogHolder_Controller {
 		parent::init();
 	}
 	
+	public function HasMoreThanTwoImages() {
+		return 3;
+	}
+	
 }

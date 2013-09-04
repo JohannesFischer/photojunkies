@@ -32,7 +32,6 @@ class PhotoBlogEntry extends BlogEntry {
 		$fields->removeFieldFromTab('Root.Main', 'Date');
 		$fields->removeFieldFromTab('Root.Main', 'Author');
 		
-		//$config = GridFieldConfig_RecordViewer::create();
 		$config  = GridFieldConfig_RelationEditor::create();
 		$gridField = new GridField('Images', 'Images', $this->Images(), $config);		
 		$fields->addFieldToTab('Root.Images', $gridField);
@@ -64,7 +63,10 @@ class PhotoBlogEntry_Controller extends BlogEntry_Controller {
 	
 	public function FirstImage() {
 		return $blog_image = $this->Images()->First();
-		//return File::get()->byId($blog_image);
+	}
+	
+	public function HasMoreThanTwoImages() {
+		return $this->Images()->Count();
 	}
 	
 }
