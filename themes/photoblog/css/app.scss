@@ -1,0 +1,300 @@
+/*
+ * LESS Vars
+ * --------------------------------------------------------------- */
+
+$default: #f938ab;
+
+@mixin linear-gradient($color1, $color2) {
+	background: linear-gradient(to bottom, $color1, $color2);
+}
+
+@mixin transition ($property: all, $duration: 2s, $timing: ease) {
+	-moz-transition: $property $duration $timing;
+    -webkit-transition: $property $duration $timing;
+    -o-transition: $property $duration $timing;
+    transition: $property $duration $timing;
+}
+
+/*
+ * Base Styling
+ * --------------------------------------------------------------- */
+
+body {
+	background: #191919;
+}
+.contain-to-grid .top-bar {
+	margin-bottom: 0;
+}
+
+/*
+ * Typography
+ * --------------------------------------------------------------- */
+
+h1,
+h2,
+.web-font {
+	font-family: Numans, sans-serif; 
+}
+
+.blogentry-preview h2 {
+	font-size: 25px;
+}
+
+/*
+ * Icons
+ * --------------------------------------------------------------- */
+
+.icon {
+	background-position: 0 50%;
+	background-repeat: no-repeat;
+	padding-left: 20px;
+}
+.comments {
+	background-image: url(../images/icons/comment_alt2_fill_14x16.png);
+}
+.comments-white {
+	background-image: url(../images/icons/comment_alt2_fill_14x16-white.png);
+}
+.read-more {
+	background-image: url(../images/icons/read_more_12x12.png);
+}
+.tags {
+	background-image: url(../images/icons/tag_fill_16x16.png);
+}
+
+/*
+ * Page
+ * --------------------------------------------------------------- */
+
+.page-content {
+	background: #fff;
+	margin-bottom: 40px;
+}
+
+/*
+ * BlogHolder
+ * --------------------------------------------------------------- */
+
+.blog-holder {
+	background: #fff;
+	margin-bottom: 40px;
+	padding-bottom: 20px;
+}
+
+.blog-summary {
+	margin-bottom: 20px;
+	.icon {
+		margin: 0;
+	}
+}
+
+.blogentry-preview {
+	min-height: 180px;
+	position: relative;
+	.image-count {
+		background: rgba(0, 0, 0, .75);
+		color: #fff;
+		font-size: 24px;
+		height: 35px;
+		line-height: 28px;
+		overflow: hidden;
+		padding: 5px;
+		position: absolute;
+		right: 0;
+		text-align: center;
+		top: 0;
+		width: 65px;
+	}
+	.blogentry-summary {
+		background: rgba(100, 100, 100, .4);
+		left: 5%;
+		max-height: 90%;
+		overflow: hidden;
+		padding: 5px;
+		position: absolute;
+		text-overflow: ellipsis;
+		top: 5%;
+		width: 40%;
+		h2 {
+			margin-bottom: 5px;
+			a {
+				color: #fff;
+			}
+		}
+		img {
+			max-width: 100%
+		}
+		a,
+		p,
+		.read-more a {
+			color: #fff;
+		}
+		.blog-summary-header {
+			border-bottom: 1px solid #fff;
+			margin-bottom: 10px;
+			padding-bottom: 10px;
+		}
+		.blog-summary-date {
+			font-size: small;
+			margin: 0;
+		}
+		.first-paragraph {
+			max-height: 60%;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+	}
+}
+
+.pagination {
+	margin-top: 20px;
+}
+
+/*
+ * BlogEntry
+ * --------------------------------------------------------------- */
+
+.blog-header {
+	background-position: top center;
+	background-attachment: fixed;
+	height: 300px;
+	.columns {
+		margin-top: 70px;
+	}
+	h2 {
+		border-bottom: 1px solid #fff;
+		padding-bottom: 10px;
+		text-transform: uppercase;
+	}
+	h2,
+	p {
+		color: #fff;
+		text-shadow: 1px 1px 3px rgba(100, 100, 100, .75);
+		text-align: center;
+	}
+}
+
+.blog-content {
+	background: #fff;
+	box-shadow: 0 -5px 10px rgba(100, 100, 100, .5);
+	margin-bottom: 40px;
+	margin-top: -50px;
+	div.blogEntry {
+		margin-top: 50px;
+	}
+	.blog-image-caption {
+		border: 1px solid #aaa;
+		border-width: 0 1px 1px;
+		color: #666;
+		font-style: italic;
+		font-size: 0.8em;
+		padding: 5px 0;
+		text-align: center;
+	}
+}
+
+/*
+ * Footer
+ * --------------------------------------------------------------- */
+
+footer {
+	background: #111;
+	.large-6 {
+		margin-bottom: 20px;
+		margin-top: 20px;
+	}
+	.copy {
+		background: #000;
+		p {
+			margin: 10px 0;
+		}
+	}
+}
+
+/*
+ * Bullets
+ * --------------------------------------------------------------- */
+
+.orbit-bullets {
+	li {
+		background: #aaa;
+		border: 0;
+		padding: 2px;
+		text-shadow: 2px  2px 2px rgba(0, 0, 0, .5);
+		@include transition;
+		&:hover,
+		&.active {
+			background: #333;
+		}
+	}
+}
+
+/*
+ * Comments
+ * --------------------------------------------------------------- */
+
+#Form_CommentsForm {
+	}
+	#Form_CommentsForm label {
+		display: block;
+		float: none;
+		margin-bottom: 5px;
+	}
+	.middleColumn {
+		clear: both;
+	}
+	#Form_CommentsForm textarea {
+		height: 80px;
+	}
+
+#comments-holder .comments-holder {
+	margin: 0 0 20px;
+}
+.comments-list {
+	list-style: none;
+}
+#comments-holder .comment p {
+	background: url(../images/icons/quotes.png) no-repeat 0 5px;
+	margin: 0 0 5px;
+	padding: 0 0 0 30px;
+}
+#comments-holder p.info {
+	background: none;
+	font-weight: bold;
+	padding: 0;
+}
+
+/* -----------------------------------------
+   Mobile Styles
+----------------------------------------- */
+
+@media only screen and (max-width: 767px) {
+
+	.blogentry-preview {
+		.blogentry-summary {
+			width: 60%;
+		}
+	}
+	
+}
+
+@media only screen and (max-width: 480px) {
+
+	.hide-on-small-screens {
+		display: none;
+	}
+
+	.blogentry-preview {
+		.blogentry-summary {
+			width: 90%;
+		}
+		.read-more {
+			width: 100%;
+		}
+		h2,
+		.blog-summary-date {
+			text-align: center;
+		}
+	}
+	
+}

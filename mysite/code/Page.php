@@ -26,7 +26,7 @@ class Page_Controller extends ContentController {
 			'foundation/foundation.min.css',
 			'typography.css',
 			'form.css',
-			'app.less'
+			'app.css'
 		);
 		
 		foreach ($css_files as $file) {
