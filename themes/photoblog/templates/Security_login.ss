@@ -1,38 +1,37 @@
 <!DOCTYPE html>
-<html lang="$ContentLocale">
+<html lang="de">
 <head>
     <% base_tag %>
-    <title>$Title</title>
-	<% require themedCSS(foundation/css/normalize) %>
-	<% require themedCSS(foundation/css/foundation.min) %>
-	<% require themedCSS(layout) %>
-	<% require themedCSS(cmslogin) %>
-	<meta name="viewport" content="width=device-width">
-	<meta name="robots" content="noindex, nofollow">
+    <title>CCC Login</title>
+    $MetaTags(false)
+    <link rel="shortcut icon" href="/favicon.ico">
+    <% require themedCSS(cmslogin) %>
 </head>
-<body class="$ClassName LoginPage typography">
+<body class="LoginPage">
     
-	<header>
-		<div class="row">
-	        <div class="column large-12">
-				<h1><a href="/">login</a></h1>
-			</div>
-		</div>
-	</header>
-	
     <% if Content %>
-		<div class="row">
-	        <div class="column large-12">
-			    <div class="PageContent">$Content</div>
-			</div>
-		</div>
+        <div class="PageContent">$Content</div>
     <% end_if %>
 
-    <div id="CMSLogin" class="row">
-        <div class="column large-12">
+    <div id="CMSLogin">
+        <div class="content">
             $Form
         </div>
     </div>
+	
+	<script>
+	jQuery(document).ready(function() {
+		if (jQuery('#CMSLogin')) {
+			var label = jQuery('#Email label');
+			var input = jQuery('#Email input')
+			input.attr('placeholder', label.text());
+			
+			var label = jQuery('#Password label');
+			var input = jQuery('#Password input')
+			input.attr('placeholder', label.text());
+		}
+	});
+	</script>
 	
 </body>
 </html>

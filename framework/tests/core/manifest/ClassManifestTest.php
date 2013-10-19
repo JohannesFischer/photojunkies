@@ -36,17 +36,20 @@ class ClassManifestTest extends SapphireTest {
 
 	public function testGetClasses() {
 		$expect = array(
-			'classa' => "{$this->base}/module/classes/ClassA.php",
-			'classb' => "{$this->base}/module/classes/ClassB.php",
-			'classc' => "{$this->base}/module/classes/ClassC.php",
-			'classd' => "{$this->base}/module/classes/ClassD.php"
+			'classb'                   => "{$this->base}/module/classes/ClassB.php",
+			'classa'                   => "{$this->base}/module/classes/ClassA.php",
+			'classb'                   => "{$this->base}/module/classes/ClassB.php",
+			'classc'                   => "{$this->base}/module/classes/ClassC.php",
+			'classd'                   => "{$this->base}/module/classes/ClassD.php",
+			'sstemplateparser'         => FRAMEWORK_PATH."/view/SSTemplateParser.php",
+			'sstemplateparseexception' => FRAMEWORK_PATH."/view/SSTemplateParser.php"
 		);
 		$this->assertEquals($expect, $this->manifest->getClasses());
 	}
 
 	public function testGetClassNames() {
 		$this->assertEquals(
-			array('classa', 'classb', 'classc', 'classd'),
+			array('sstemplateparser', 'sstemplateparseexception', 'classa', 'classb', 'classc', 'classd'),
 			$this->manifest->getClassNames());
 	}
 
@@ -107,7 +110,10 @@ class ClassManifestTest extends SapphireTest {
 	}
 
 	public function testGetModules() {
-		$expect = array("module" => "{$this->base}/module");
+		$expect = array(
+			"module" => "{$this->base}/module",
+			"moduleb" => "{$this->base}/moduleb"
+		);
 		$this->assertEquals($expect, $this->manifest->getModules());
 		$this->assertEquals($expect, $this->manifestTests->getModules());
 	}

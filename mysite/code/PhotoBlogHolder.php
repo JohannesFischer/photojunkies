@@ -5,11 +5,11 @@
  * @package photoblog
  */
 class PhotoBlogHolder extends BlogHolder {
-	static $allowed_children = array(
+	private static $allowed_children = array(
 		'PhotoBlogEntry'
 	);
 	
-	static $db = array(
+	private static $db = array(
 	);
 	
 	static $default_parent = 'BlogTree';
@@ -18,7 +18,7 @@ class PhotoBlogHolder extends BlogHolder {
 	
 	static $singular_name = 'Photo Blog Holder';
 	
-	static $defaults = array(
+	private static $defaults = array(
 	);
 	
 	public function getCMSFields() {

@@ -4,7 +4,7 @@
  * @subpackage tests
  */
 class MemberCsvBulkLoaderTest extends SapphireTest {
-	static $fixture_file = 'MemberCsvBulkLoaderTest.yml';
+	protected static $fixture_file = 'MemberCsvBulkLoaderTest.yml';
 	
 	public function testNewImport() {
 		$loader = new MemberCsvBulkLoader();
@@ -41,8 +41,11 @@ class MemberCsvBulkLoaderTest extends SapphireTest {
 		$results = $loader->load($this->getCurrentRelativePath() . '/MemberCsvBulkLoaderTest.csv');
 		
 		$created = $results->Created()->toArray();
-		$this->assertEquals($created[0]->Groups()->column('ID'), array($existinggroup->ID));
-		$this->assertEquals($created[1]->Groups()->column('ID'), array($existinggroup->ID));
+		$this->assertEquals(1, count($created[0]->Groups()->column('ID')));
+		$this->assertContains($existinggroup->ID, $created[0]->Groups()->column('ID'));
+
+		$this->assertEquals(1, count($created[1]->Groups()->column('ID')));
+		$this->assertContains($existinggroup->ID, $created[1]->Groups()->column('ID'));
 	}
 	
 	public function testAddToCsvColumnGroupsByCode() {
@@ -55,8 +58,12 @@ class MemberCsvBulkLoaderTest extends SapphireTest {
 		$this->assertEquals($newgroup->Title, 'newgroup');
 		
 		$created = $results->Created()->toArray();
-		$this->assertEquals($created[0]->Groups()->column('ID'), array($existinggroup->ID));
-		$this->assertEquals($created[1]->Groups()->column('ID'), array($existinggroup->ID, $newgroup->ID));
+		$this->assertEquals(1, count($created[0]->Groups()->column('ID')));
+		$this->assertContains($existinggroup->ID, $created[0]->Groups()->column('ID'));
+
+		$this->assertEquals(2, count($created[1]->Groups()->column('ID')));
+		$this->assertContains($existinggroup->ID, $created[1]->Groups()->column('ID'));
+		$this->assertContains($newgroup->ID, $created[1]->Groups()->column('ID'));
 	}
 	
 	public function testCleartextPasswordsAreHashedWithDefaultAlgo() {
@@ -70,7 +77,7 @@ class MemberCsvBulkLoaderTest extends SapphireTest {
 		$member = DataObject::get_by_id('Member', $memberID);
 
 		// TODO Direct getter doesn't work, wtf!
-		$this->assertEquals(Security::get_password_encryption_algorithm(), $member->getField('PasswordEncryption'));
+		$this->assertEquals(Security::config()->password_encryption_algorithm, $member->getField('PasswordEncryption'));
 		$result = $member->checkPassword('mypassword');
 		$this->assertTrue($result->valid());
 	}

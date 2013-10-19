@@ -7,13 +7,13 @@
  */
 class CommentAdmin extends LeftAndMain {
 
-	public static $url_segment = 'comments';
+	private static $url_segment = 'comments';
 
-	public static $url_rule = '/$Action';
+	private static $url_rule = '/$Action';
 
-	public static $menu_title = 'Comments';
+	private static $menu_title = 'Comments';
 
-	public static $allowed_actions = array(
+	private static $allowed_actions = array(
 		'approvedmarked',
 		'deleteall',
 		'deletemarked',
@@ -52,14 +52,14 @@ class CommentAdmin extends LeftAndMain {
 		$needs = new GridField(
 			'Comments', 
 			_t('CommentsAdmin.NeedsModeration', 'Needs Moderation'), 
-			Comment::get()->where('Moderated = 0'), 
+			Comment::get()->filter('Moderated',0),
 			$commentsConfig
 		);
 
 		$moderated = new GridField(
 			'CommentsModerated', 
 			_t('CommentsAdmin.CommentsModerated'),
-			Comment::get()->where('Moderated = 1'),
+			Comment::get()->filter('Moderated',1),
 			$commentsConfig
 		);
 

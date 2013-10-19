@@ -1,26 +1,20 @@
 <?php
+
 if(class_exists('Widget')) {
 
 	/**
 	 * Blog Management Widget
+	 * 
 	 * @package blog
 	 */
 	class BlogManagementWidget extends Widget {
-		static $db = array();
 
-		static $has_one = array();
-
-		static $has_many = array();
-
-		static $many_many = array();
-
-		static $belongs_many_many = array();
-
-		static $defaults = array();
-
-		static $title = "Blog Management";
-		static $cmsTitle = "Blog Management";
-		static $description = "Provide a number of links useful for administering a blog. Only shown if the user is an admin.";
+		private static $title = "Blog Management";
+		
+		private static $cmsTitle = "Blog Management";
+		
+		private static $description =
+			"Provide a number of links useful for administering a blog. Only shown if the user is an admin.";
 
 		function CommentText() {
 

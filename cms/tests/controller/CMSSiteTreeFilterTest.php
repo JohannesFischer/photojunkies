@@ -1,7 +1,7 @@
 <?php
 class CMSSiteTreeFilterTest extends SapphireTest {
 
-	static $fixture_file = 'CMSSiteTreeFilterTest.yml';
+	protected static $fixture_file = 'CMSSiteTreeFilterTest.yml';
 	
 	public function testSearchFilterEmpty() {
 		$page1 = $this->objFromFixture('Page', 'page1');
@@ -51,9 +51,9 @@ class CMSSiteTreeFilterTest extends SapphireTest {
 		$unchangedPage->doPublish();
 	
 		$changedPage = $this->objFromFixture('Page', 'page2');
-		$changedPage->MetaTitle = 'Original';
+		$changedPage->Title = 'Original';
 		$changedPage->publish('Stage', 'Live');
-		$changedPage->MetaTitle = 'Changed';
+		$changedPage->Title = 'Changed';
 		$changedPage->write();
 	
 		$f = new CMSSiteTreeFilter_ChangedPages();

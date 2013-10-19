@@ -1,6 +1,6 @@
 # Blog Module
 
-[![Build Status](https://secure.travis-ci.org/silverstripe/silverstripe-blog.png?branch=0.6)](http://travis-ci.org/silverstripe/silverstripe-blog)
+[![Build Status](https://secure.travis-ci.org/silverstripe/silverstripe-blog.png?branch=master)](http://travis-ci.org/silverstripe/silverstripe-blog)
 
 ## Introduction
 
@@ -11,10 +11,10 @@ The blog module allows you to post blogs on your SilverStripe. It includes the a
  * Saophalkun Ponlu (phalkunz at silverstripe dot com)
  * Carlos Barberis (carlos at silverstripe dot com)
 
- ## Requirements
+## Requirements
 
- * Silverstripe 3.0
- * (Optional) silverstripe-widgets module
+ * Silverstripe 3.1
+ * silverstripe-widgets module
 
 ## Feature Overview
 
@@ -98,3 +98,15 @@ to have it available globally.
 The blog comes set up to use the `\themes\blackcandy_blog\` directory by default. 
 
    * See [:themes](/themes)
+
+## Contributing
+
+### Translations
+
+Translations of the natural language strings are managed through a
+third party translation interface, transifex.com.
+Newly added strings will be periodically uploaded there for translation,
+and any new translations will be merged back to the project source code.
+
+Please use https://www.transifex.com/projects/p/silverstripe-blog/ to contribute translations,
+rather than sending pull requests with YAML files.

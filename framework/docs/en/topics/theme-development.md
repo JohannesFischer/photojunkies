@@ -72,9 +72,9 @@ our theme in action. The code for mine is below.
 	  </div>
 	 
 	  <div id="Navigation">
-	    <% if Menu(1) %>
+	    <% if $Menu(1) %>
 	    <ul>
-	      <% loop Menu(1) %>	  
+	      <% loop $Menu(1) %>	  
 	        <li><a href="$Link" title="Go to the $Title page" class="$LinkingMode">$MenuTitle</a></li>
 	      <% end_loop %>
 	    </ul>
@@ -101,10 +101,12 @@ our theme in action. The code for mine is below.
 	$Form
 
 
-All you have to do now is tell your site to use your new theme - This is defined in the **mysite/_config.php** file
+All you have to do now is tell your site to use your new theme. This is defined through
+the YAML config, for example in `mysite/_config/config.yml`.
 
-	:::php
-	SSViewer::set_theme('mythemename');
+	:::yml
+	SSViewer:
+	  theme: 'mythemename'
 
 
 Go to yoursite.com/?flush=1 and check it out. You should be using your new theme! Not really that awesome or amazing is
@@ -121,7 +123,7 @@ By standard SilverStripe uses 3 CSS Files for your site -
 *  **typography.css** contains the styling for the text/fonts/links (used in both front and back ends)
 *  **form.css** styling for forms.
 
-You can add more stylesheets using the template tag `<% require themedCSS(filename) %>`, which will load filename.css from
+You can add more stylesheets using the template tag `<% require themedCSS("filename") %>`, which will load filename.css from
 your css directory.
 
 Note: If you're using a default install of Silverstripe and notice that you're getting layout.css, typography.css and
@@ -180,9 +182,9 @@ Next is a division for the main navigation. This may contain something like:
 
 	:::ss
 	<div id="Navigation">
-	  <% if Menu(1) %>
+	  <% if $Menu(1) %>
 	  <ul>
-	    <% loop Menu(1) %>	  
+	    <% loop $Menu(1) %>	  
 	      <li><a href="$Link" title="Go to the $Title page" class="$LinkingMode">$MenuTitle</a></li>
 	    <% end_loop %>
 	 </ul>
@@ -196,8 +198,8 @@ Before stepping into a loop it's good practise to check if it exists first. This
 important in manipulating SilverStripe templates, but in any programming language!
 
 	:::ss
-	<% if MyFunction %>
-	  <% loop MyFunction %>
+	<% if $MyFunction %>
+	  <% loop $MyFunction %>
 	    $Title
 	  <% end_loop %>
 	<% end_if %>

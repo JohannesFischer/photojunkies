@@ -10,15 +10,16 @@ class TimeFieldTest extends SapphireTest {
 		
 		$this->originalLocale = i18n::get_locale();
 		i18n::set_locale('en_NZ');
-		$this->origTimeFormat = TimeField::$default_config['timeformat'];
-		TimeField::$default_config['timeformat'] = 'HH:mm:ss';
+		$this->origTimeConfig = Config::inst()->get('TimeField', 'default_config');
+		Config::inst()->update('TimeField', 'default_config', array('timeformat' => 'HH:mm:ss'));
 	}
 	
 	public function tearDown() {
 		parent::tearDown();
 		
 		i18n::set_locale($this->originalLocale);
-		TimeField::$default_config['timeformat'] = $this->origTimeFormat;
+		Config::inst()->remove('TimeField', 'default_config');
+		Config::inst()->update('TimeField', 'default_config', $this->origTimeConfig);
 	}
 	
 	public function testConstructorWithoutArgs() {
@@ -98,5 +99,37 @@ class TimeFieldTest extends SapphireTest {
 		$field->setValue('11:00pm');
 		$field->setValue('');
 		$this->assertEquals($field->dataValue(), '');
+	}
+	
+	/**
+	 * Test that AM/PM is preserved correctly in various situations
+	 */
+	public function testPreserveAMPM() {
+		
+		// Test with timeformat that includes hour
+		
+		// Check pm
+		$f = new TimeField('Time', 'Time');
+		$f->setConfig('timeformat', 'h:mm:ss a');
+		$f->setValue('3:59 pm');
+		$this->assertEquals($f->dataValue(), '15:59:00');
+		
+		// Check am
+		$f = new TimeField('Time', 'Time');
+		$f->setConfig('timeformat', 'h:mm:ss a');
+		$f->setValue('3:59 am');
+		$this->assertEquals($f->dataValue(), '03:59:00');
+		
+		// Check with ISO date/time
+		$f = new TimeField('Time', 'Time');
+		$f->setConfig('timeformat', 'h:mm:ss a');
+		$f->setValue('15:59:00');
+		$this->assertEquals($f->dataValue(), '15:59:00');
+		
+		// ISO am
+		$f = new TimeField('Time', 'Time');
+		$f->setConfig('timeformat', 'h:mm:ss a');
+		$f->setValue('03:59:00');
+		$this->assertEquals($f->dataValue(), '03:59:00');
 	}
 }

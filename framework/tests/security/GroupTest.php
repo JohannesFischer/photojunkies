@@ -5,7 +5,7 @@
  */
 class GroupTest extends FunctionalTest {
 
-	static $fixture_file = 'GroupTest.yml';
+	protected static $fixture_file = 'GroupTest.yml';
 	
 	public function testGroupCodeDefaultsToTitle() {
 		$g1 = new Group();
@@ -23,30 +23,6 @@ class GroupTest extends FunctionalTest {
 		$g3->Title = _t('SecurityAdmin.NEWGROUP',"New Group");
 		$g3->write();
 		$this->assertNull($g3->Code, 'Default title doesnt trigger attribute setting');
-	}
-	
-	/**
-	 * Test the Group::map() function
-	 */
-	public function testGroupMap() {
-		// 2.4 only
-		$originalDeprecation = Deprecation::dump_settings();
-		Deprecation::notification_version('2.4');
-		
-		/* Group::map() returns an SQLMap object implementing iterator.  You can use foreach to get ID-Title pairs. */
-		
-		// We will iterate over the map and build mapOuput to more easily call assertions on the result.
-		$map = Group::map();
-		$mapOutput = $map->toArray();
-		
-		$group1 = $this->objFromFixture('Group', 'group1');
-		$group2 = $this->objFromFixture('Group', 'group2');
-
-		/* We have added 2 groups to our fixture.  They should both appear in $mapOutput. */
-		$this->assertEquals($mapOutput[$group1->ID], $group1->Title);
-		$this->assertEquals($mapOutput[$group2->ID], $group2->Title);
-
-		Deprecation::restore_settings($originalDeprecation);
 	}
 	
 	public function testMemberGroupRelationForm() {
@@ -68,12 +44,12 @@ class GroupTest extends FunctionalTest {
 		$form->saveInto($member);
 		$updatedGroups = $member->Groups();
 
-		$this->assertEquals(
-			array($adminGroup->ID, $parentGroup->ID),
-			$updatedGroups->column(),
+		$this->assertEquals(2, count($updatedGroups->column()),
 			"Adding a toplevel group works"
 		);
-
+		$this->assertContains($adminGroup->ID, $updatedGroups->column('ID'));
+		$this->assertContains($parentGroup->ID, $updatedGroups->column('ID'));
+		
 		// Test unsetting relationship
 		$form->loadDataFrom($member);
 		$checkboxSetField = $form->Fields()->fieldByName('Groups');
@@ -84,11 +60,10 @@ class GroupTest extends FunctionalTest {
 		$form->saveInto($member);
 		$member->flushCache();
 		$updatedGroups = $member->Groups();
-		$this->assertEquals(
-			array($adminGroup->ID),
-			$updatedGroups->column(),
+		$this->assertEquals(1, count($updatedGroups->column()),
 			"Removing a previously added toplevel group works"
 		);
+		$this->assertContains($adminGroup->ID, $updatedGroups->column('ID'));
 
 		// Test adding child group
 
@@ -101,23 +76,21 @@ class GroupTest extends FunctionalTest {
 		$orphanGroup->ParentID = 99999;
 		$orphanGroup->write();
 		
-		$this->assertEquals(
-			array($parentGroup->ID), 
-			$parentGroup->collateAncestorIDs(),
+		$this->assertEquals(1, count($parentGroup->collateAncestorIDs()),
 			'Root node only contains itself'
 		);
+		$this->assertContains($parentGroup->ID, $parentGroup->collateAncestorIDs());
 		
-		$this->assertEquals(
-			array($childGroup->ID, $parentGroup->ID), 
-			$childGroup->collateAncestorIDs(),
+		$this->assertEquals(2, count($childGroup->collateAncestorIDs()),
 			'Contains parent nodes, with child node first'
 		);
+		$this->assertContains($parentGroup->ID, $childGroup->collateAncestorIDs());
+		$this->assertContains($childGroup->ID, $childGroup->collateAncestorIDs());
 		
-		$this->assertEquals(
-			array($orphanGroup->ID), 
-			$orphanGroup->collateAncestorIDs(),
+		$this->assertEquals(1, count($orphanGroup->collateAncestorIDs()),
 			'Orphaned nodes dont contain invalid parent IDs'
 		);
+		$this->assertContains($orphanGroup->ID, $orphanGroup->collateAncestorIDs());
 	}
 
 	public function testDelete() {
@@ -134,6 +107,49 @@ class GroupTest extends FunctionalTest {
 			'Child groups are removed');
 		$this->assertEquals(0, DataObject::get('Group', "\"ParentID\" = {$childGroupID}")->Count(),
 			'Grandchild groups are removed');
+	}
+
+	public function testValidatesPrivilegeLevelOfParent() {
+		$nonAdminUser = $this->objFromFixture('GroupTest_Member', 'childgroupuser');
+		$adminUser = $this->objFromFixture('GroupTest_Member', 'admin');
+		$nonAdminGroup = $this->objFromFixture('Group', 'childgroup');
+		$adminGroup = $this->objFromFixture('Group', 'admingroup');
+
+		$nonAdminValidateMethod = new ReflectionMethod($nonAdminGroup, 'validate');
+		$nonAdminValidateMethod->setAccessible(true);
+
+		// Making admin group parent of a non-admin group, effectively expanding is privileges
+		$nonAdminGroup->ParentID = $adminGroup->ID;
+
+		$this->logInWithPermission('APPLY_ROLES');
+		$result = $nonAdminValidateMethod->invoke($nonAdminGroup);
+		$this->assertFalse(
+			$result->valid(),
+			'Members with only APPLY_ROLES can\'t assign parent groups with direct ADMIN permissions'
+		);
+
+		$this->logInWithPermission('ADMIN');
+		$result = $nonAdminValidateMethod->invoke($nonAdminGroup);
+		$this->assertTrue(
+			$result->valid(),
+			'Members with ADMIN can assign parent groups with direct ADMIN permissions'
+		);
+		$nonAdminGroup->write();
+		$newlyAdminGroup = $nonAdminGroup;
+
+		$this->logInWithPermission('ADMIN');
+		$inheritedAdminGroup = $this->objFromFixture('Group', 'group1');
+		$inheritedAdminMethod = new ReflectionMethod($inheritedAdminGroup, 'validate');
+		$inheritedAdminMethod->setAccessible(true);
+		$inheritedAdminGroup->ParentID = $adminGroup->ID;
+		$inheritedAdminGroup->write(); // only works with ADMIN login
+
+		$this->logInWithPermission('APPLY_ROLES');
+		$result = $inheritedAdminMethod->invoke($nonAdminGroup);
+		$this->assertFalse(
+			$result->valid(),
+			'Members with only APPLY_ROLES can\'t assign parent groups with inherited ADMIN permission'
+		);
 	}
 
 }

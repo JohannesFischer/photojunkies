@@ -35,13 +35,13 @@
 			<% end_if %>
 			
 			<p class="authorDate">
-				<% _t('POSTEDBY', 'Posted by') %> $Author.XML <% _t('POSTEDON', 'on') %> $Date.Long | <a href="$Link#comments-holder" title="View Comments Posted">$Comments.Count <% if IsNotOne($Comments.Count) %><% _t('COMMENTS', 'Comments') %><% else %><% _t('COMMENT', 'Comment') %><% end_if %></a>
+				<% _t('POSTEDBY', 'Posted by') %> $Author.XML <% _t('POSTEDON', 'on') %>$Date.format(M d Y) | <a href="$Link#comments-holder" title="View Comments Posted">$Comments.Count <% if IsNotOne($Comments.Count) %><% _t('COMMENTS', 'Comments') %><% else %><% _t('COMMENT', 'Comment') %><% end_if %></a>
 			</p>
 			<% if TagsCollection %>
 				<p class="icon tags">
-					<% control TagsCollection %>
+					<% loop TagsCollection %>
 						<a href="$Link" title="<% _t('VIEWALLPOSTTAGGED', 'View all posts tagged') %> '$Tag'" rel="tag">$Tag</a><% if not Last %>,<% end_if %>
-					<% end_control %>
+					<% end_loop %>
 				</p>
 			<% end_if %>
 			

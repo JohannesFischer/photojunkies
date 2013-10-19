@@ -6,16 +6,17 @@
 
 class CommentingController extends Controller {
 	
-	public static $allowed_actions = array(
+	private static $allowed_actions = array(
 		'delete',
 		'spam',
 		'ham',
 		'approve',
 		'rss',
 		'CommentsForm',
-		'doPostComment'
+		'doPostComment',
+		'doPreviewComment'
 	);
-	
+
 	private $baseClass = "";
 	private $ownerRecord = "";
 	private $ownerController = "";
@@ -54,67 +55,82 @@ class CommentingController extends Controller {
 	}
 	
 	/**
-	 * Return an RSS feed of comments for a given set of comments or all 
+	 * Outputs the RSS feed of comments
+	 *
+	 * @return XML
+	 */
+	public function rss() {
+		return $this->getFeed($this->request)->outputToBrowser();
+	}
+
+	/**
+	 * Return an RSSFeed of comments for a given set of comments or all 
 	 * comments on the website.
 	 *
 	 * To maintain backwards compatibility with 2.4 this supports mapping
 	 * of PageComment/rss?pageid= as well as the new RSS format for comments
 	 * of CommentingController/rss/{classname}/{id}
 	 *
-	 * @return RSS
+	 * @param SS_HTTPRequest
+	 *
+	 * @return RSSFeed
 	 */
-	public function rss() {
+	public function getFeed(SS_HTTPRequest $request) {
 		$link = $this->Link('rss');
-		$class = $this->urlParams['ID'];
-		$id = $this->urlParams['OtherID'];
+		$class = $request->param('ID');
+		$id = $request->param('OtherID');
 
-		if(isset($_GET['pageid'])) {
-			$id =  Convert::raw2sql($_GET['pageid']);
+		$comments = Comment::get()->filter(array(
+			'Moderated' => 1,
+			'IsSpam' => 0,
+		));
 
-			$comments = Comment::get()->where(sprintf(
-				"BaseClass = 'SiteTree' AND ParentID = '%s' AND Moderated = 1 AND IsSpam = 0", $id
+		if($request->getVar('pageid')) {
+			$comments = $comments->filter(array(
+				'BaseClass' => 'SiteTree',
+				'ParentID' => $request->getVar('pageid'),
 			));
 
 			$link = $this->Link('rss', 'SiteTree', $id);
 
-		} else if($class && $id) {
+		} elseif($class && $id) {
 			if(Commenting::has_commenting($class)) {
-				$comments = Comment::get()->where(sprintf(
-					"BaseClass = '%s' AND ParentID = '%s' AND Moderated = 1 AND IsSpam = 0", 
-					Convert::raw2sql($class),
-					Convert::raw2sql($id)
+				$comments = $comments->filter(array(
+					'BaseClass' => $class,
+					'ParentID' => $id,
 				));
 
 				$link = $this->Link('rss', Convert::raw2xml($class), (int) $id);
 			} else {
 				return $this->httpError(404);
 			}
-		} else if($class) {
+		} elseif($class) {
 			if(Commenting::has_commenting($class)) {
-				$comments = Comment::get()->where(sprintf(
-					"BaseClass = '%s' AND Moderated = 1 AND IsSpam = 0", 
-					Convert::raw2sql($class)
-				));
+				$comments = $comments->filter('BaseClass', $class);
 			} else {
 				return $this->httpError(404);
 			}
-		} else {
-			$comments = Comment::get();
 		}
 
 		$title = _t('CommentingController.RSSTITLE', "Comments RSS Feed");
 
-		$feed = new RSSFeed($comments, $link, $title, $link, 'Title', 'Comment', 'AuthorName');
-		$feed->outputToBrowser();
+		$comments = new PaginatedList($comments, $request);
+		$comments->setPageLength(Commenting::get_config_value(null, 'comments_per_page'));
+
+		return new RSSFeed(
+			$comments, 
+			$link, 
+			$title, 
+			$link, 
+			'Title', 'EscapedComment', 'AuthorName'
+		);
 	}
 
 	/**
 	 * Deletes a given {@link Comment} via the URL.
-	 *
-	 * @param SS_HTTPRequest
 	 */
-	public function delete($request) {
-		if(!$this->checkSecurityToken($request)) {
+	public function delete() {
+		if(!$this->checkSecurityToken($this->request)) {
 			return $this->httpError(400);
 		}
 
@@ -129,11 +145,9 @@ class CommentingController extends Controller {
 
 	/**
 	 * Marks a given {@link Comment} as spam. Removes the comment from display
-	 *
-	 * @param SS_HTTPRequest
 	 */
 	public function spam() {
-		if(!$this->checkSecurityToken($request)) {
+		if(!$this->checkSecurityToken($this->request)) {
 			return $this->httpError(400);
 		}
 
@@ -144,7 +158,7 @@ class CommentingController extends Controller {
 			$comment->Moderated = true;
 			$comment->write();
 				
-			return ($this->request->isAjax()) ? true : $this->redirectBack();
+			return ($this->request->isAjax()) ? $comment->renderWith('CommentsInterface_singlecomment') : $this->redirectBack();
 		}
 
 		return $this->httpError(404);
@@ -152,11 +166,9 @@ class CommentingController extends Controller {
 
 	/**
 	 * Marks a given {@link Comment} as ham (not spam).
-	 *
-	 * @param SS_HTTPRequest
 	 */
-	public function ham($request) {
-		if(!$this->checkSecurityToken($request)) {
+	public function ham() {
+		if(!$this->checkSecurityToken($this->request)) {
 			return $this->httpError(400);
 		}
 
@@ -167,7 +179,7 @@ class CommentingController extends Controller {
 			$comment->Moderated = true;
 			$comment->write();
 				
-			return ($this->request->isAjax()) ? true : $this->redirectBack();
+			return ($this->request->isAjax()) ? $comment->renderWith('CommentsInterface_singlecomment') : $this->redirectBack();
 		}
 
 		return $this->httpError(404);
@@ -175,11 +187,9 @@ class CommentingController extends Controller {
 
 	/**
 	 * Marks a given {@link Comment} as approved.
-	 *
-	 * @param SS_HTTPRequest
 	 */
-	public function approve($request) {
-		if(!$this->checkSecurityToken($request)) {
+	public function approve() {
+		if(!$this->checkSecurityToken($this->request)) {
 			return $this->httpError(400);
 		}
 
@@ -190,14 +200,15 @@ class CommentingController extends Controller {
 			$comment->Moderated = true;
 			$comment->write();
 				
-			return ($this->request->isAjax()) ? true : $this->redirectBack();
+			return ($this->request->isAjax()) ? $comment->renderWith('CommentsInterface_singlecomment') : $this->redirectBack();
 		}
 
 		return $this->httpError(404);
 	}
 	
 	/**
-	 * Returns the comment referenced in the URL (by ID).
+	 * Returns the comment referenced in the URL (by ID). Permission checking
+	 * should be done in the callee.
 	 *
 	 * @return Comment|false
 	 */
@@ -235,22 +246,55 @@ class CommentingController extends Controller {
 	 * @return Form
 	 */
 	public function CommentsForm() {
-		
+		$usePreview = Commenting::get_config_value($this->getBaseClass(), 'use_preview');
 		$member = Member::currentUser();
+
 		$fields = new FieldList(
-			new TextField("Name", _t('CommentInterface.YOURNAME', 'Your name')),
-			new EmailField("Email", _t('CommentingController.EMAILADDRESS', "Your email address (will not be published)")),
-			new TextField("URL", _t('CommentingController.WEBSITEURL', "Your website URL")),
-			new TextareaField("Comment", _t('CommentingController.COMMENTS', "Comments")),
-			new HiddenField("ParentID"),
-			new HiddenField("ReturnURL"),
-			new HiddenField("BaseClass")
+			$dataFields = new CompositeField(
+			TextField::create("Name", _t('CommentInterface.YOURNAME', 'Your name'))
+				->setCustomValidationMessage(_t('CommentInterface.YOURNAME_MESSAGE_REQUIRED', 'Please enter your name'))
+				->setAttribute('data-message-required', _t('CommentInterface.YOURNAME_MESSAGE_REQUIRED', 'Please enter your name')),
+
+			EmailField::create("Email", _t('CommentingController.EMAILADDRESS', "Your email address (will not be published)"))
+				->setCustomValidationMessage(_t('CommentInterface.EMAILADDRESS_MESSAGE_REQUIRED', 'Please enter your email address'))
+				->setAttribute('data-message-required', _t('CommentInterface.EMAILADDRESS_MESSAGE_REQUIRED', 'Please enter your email address'))
+				->setAttribute('data-message-email', _t('CommentInterface.EMAILADDRESS_MESSAGE_EMAIL', 'Please enter a valid email address')),
+
+			TextField::create("URL", _t('CommentingController.WEBSITEURL', "Your website URL"))
+				->setAttribute('data-message-url', _t('CommentInterface.COMMENT_MESSAGE_URL', 'Please enter a valid URL')),
+
+			TextareaField::create("Comment", _t('CommentingController.COMMENTS', "Comments"))
+				->setCustomValidationMessage(_t('CommentInterface.COMMENT_MESSAGE_REQUIRED', 'Please enter your comment'))
+					->setAttribute('data-message-required', _t('CommentInterface.COMMENT_MESSAGE_REQUIRED', 'Please enter your comment'))
+			),
+			HiddenField::create("ParentID"),
+			HiddenField::create("ReturnURL"),
+			HiddenField::create("BaseClass")
 		);
+
+		// Preview formatted comment. Makes most sense when shortcodes or
+		// limited HTML is allowed. Populated by JS/Ajax.
+		if($usePreview) {
+			$fields->insertAfter(
+				ReadonlyField::create('PreviewComment', _t('CommentInterface.PREVIEWLABEL', 'Preview'))
+					->setAttribute('style', 'display: none'), // enable through JS
+				'Comment'
+			);
+		}
+	
+		$dataFields->addExtraClass('data-fields');
 
 		// save actions
 		$actions = new FieldList(
 			new FormAction("doPostComment", _t('CommentInterface.POST', 'Post'))
 		);
+		if($usePreview) {
+			$actions->push(
+				FormAction::create('doPreviewComment', _t('CommentInterface.PREVIEW', 'Preview'))
+					->addExtraClass('action-minor')
+					->setAttribute('style', 'display: none') // enable through JS
+			);
+		}
 
 		// required fields for server side
 		$required = new RequiredFields(array(
@@ -274,6 +318,7 @@ class CommentingController extends Controller {
 				$fields->removeByName('Email');
 				$fields->insertBefore(new ReadonlyField("NameView", _t('CommentInterface.YOURNAME', 'Your name'), $member->getName()), 'URL');
 				$fields->push(new HiddenField("Name", "", $member->getName()));
+				$fields->push(new HiddenField("Email", "", $member->Email));
 				
 				$form->setFields($fields);
 			}
@@ -296,17 +341,21 @@ class CommentingController extends Controller {
 		// load any data from the cookies
 		if($data = Cookie::get('CommentsForm_UserData')) {
 			$data = Convert::json2array($data); 
-			
+			  
 			$form->loadDataFrom(array(
 				"Name"		=> isset($data['Name']) ? $data['Name'] : '',
 				"URL"		=> isset($data['URL']) ? $data['URL'] : '',
-				"Email"		=> isset($data['Email']) ? $data['Email'] : '',
-				"Comment"	=> Cookie::get('CommentsForm_Comment')
-			));			
+				"Email"		=> isset($data['Email']) ? $data['Email'] : ''
+			));
+			// allow previous value to fill if comment not stored in cookie (i.e. validation error)
+			$prevComment = Cookie::get('CommentsForm_Comment');
+			if($prevComment && $prevComment != ''){
+			  $form->loadDataFrom(array("Comment" => $prevComment));
+			}
 		}
 
 		if($member) {
-			$form->loadDataFrom($member);
+		  $form->loadDataFrom($member);
 		}
 		
 		// hook to allow further extensions to alter the comments form
@@ -323,6 +372,8 @@ class CommentingController extends Controller {
 	 */
 	public function doPostComment($data, $form) {
 		$class = (isset($data['BaseClass'])) ? $data['BaseClass'] : $this->getBaseClass();
+		$usePreview = Commenting::get_config_value($class, 'use_preview');
+		$isPreview = ($usePreview && isset($data['IsPreview']) && $data['IsPreview']);
 		
 		// if no class then we cannot work out what controller or model they
 		// are on so throw an error
@@ -350,36 +401,47 @@ class CommentingController extends Controller {
 
 		// is moderation turned on
 		$moderated = Commenting::get_config_value($class, 'require_moderation');
+		if(!$moderated){
+		  $moderated_nonmembers = Commenting::get_config_value($class, 'require_moderation_nonmembers');
+		  $moderated = $moderated_nonmembers ? !Member::currentUser() : false;
+		}
+		
+		// we want to show a notification if comments are moderated
+		if ($moderated) {
+			Session::set('CommentsModerated', 1);
+		}
+
 		
 		$comment = new Comment();
 		$form->saveInto($comment);
 
+		$comment->AllowHtml = Commenting::get_config_value($class, 'html_allowed');
 		$comment->Moderated = ($moderated) ? false : true;
-		$comment->write();
+
+		// Save into DB, or call pre-save hooks to give accurate preview
+		if($isPreview) {
+			$comment->extend('onBeforeWrite', $dummy);
+		} else {
+			$comment->write();	
+
+		// extend hook to allow extensions. Also see onBeforePostComment
+		$this->extend('onAfterPostComment', $comment);	
+		}
 		
 		// clear the users comment since it passed validation
 		Cookie::set('CommentsForm_Comment', false);
-		
-		if(Director::is_ajax()) {
-			if(!$comment->Moderated) {
-				echo $comment->renderWith('CommentInterface_pendingcomment');
-			} else {
-				echo $comment->renderWith('CommentInterface_singlecomment');
-			}
-			
-			return true;
-		}
-		
-		if($comment->NeedsModeration){
-			$this->sessionMessage($moderationMsg, 'good');
-		}
-		
-		// build up the return link. Ideally redirect to 
+
 		$holder = Commenting::get_config_value($comment->BaseClass, 'comments_holder_id');
 
-		$hash = ($comment->NeedsModeration) ? $holder : $comment->Permalink();
+		$hash = ($moderated) ? $holder : $comment->Permalink();
 		$url = (isset($data['ReturnURL'])) ? $data['ReturnURL'] : false;
 			
 		return ($url) ? $this->redirect($url .'#'. $hash) : $this->redirectBack();
+	}
+
+	public function doPreviewComment($data, $form) {
+		$data['IsPreview'] = 1;
+
+		return $this->doPostComment($data, $form);
 	}
 }

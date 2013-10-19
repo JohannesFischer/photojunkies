@@ -20,11 +20,12 @@ It's a `[api:DataExtension]`, which allow it to be applied to any `[api:DataObje
 
 Adding versioned to your `DataObject` subclass works the same as any other extension.
 It accepts two or more arguments denoting the different "stages",
-which map to different database tables.
+which map to different database tables. Add the following to your [configuration file](/topics/configuration):
 
-	:::php
-	// mysite/_config.php
-	Object::add_extension('MyRecord', 'Versioned("Stage","Live")');
+	:::yml
+	MyRecord:
+	  extensions:
+	    - Versioned("Stage","Live")
 
 Note: The extension is automatically applied to `SiteTree` class.
 
@@ -58,8 +59,8 @@ You can explicitly request a certain stage through various getters on the `Versi
 	$liveRecords = Versioned::get_by_stage('MyRecord', 'Live');
 
 	// Fetching a single record
-	$stageRecord = Versioned::get_one_by_stage('MyRecord', 'Stage')->byID(99);
-	$liveRecord = Versioned::get_one_by_stage('MyRecord', 'Live')->byID(99);
+	$stageRecord = Versioned::get_by_stage('MyRecord', 'Stage')->byID(99);
+	$liveRecord = Versioned::get_by_stage('MyRecord', 'Live')->byID(99);
 
 ### Historical Versions
 

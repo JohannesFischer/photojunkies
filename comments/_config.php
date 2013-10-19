@@ -21,6 +21,11 @@
  *		'require_login' => true
  *	));
  * </code>
+ *
+ * To see all the configuration options read docs/en/Configuration.md or
+ * consult the Commenting class.
  */
 
-Commenting::add('SiteTree');
+if(class_exists('SiteTree')) {
+	Commenting::add('SiteTree');
+}

@@ -5,10 +5,10 @@
  * @package photoblog
  */
 class PhotoBlogEntry extends BlogEntry {
-	static $db = array(
+	private static $db = array(
 	);
 	
-	static $default_parent = 'PhotoBlogHolder';
+	private static $default_parent = 'PhotoBlogHolder';
 	
 	static $can_be_root = true;
 	
@@ -18,15 +18,15 @@ class PhotoBlogEntry extends BlogEntry {
 	
 	static $plural_name = 'Photo Blog Entry Pages';
 	
-	static $has_many = array(
+	private static $has_many = array(
 		'Images' => 'BlogImage'
 	);
 	
-	static $defaults = array(
+	private static $defaults = array(
 		'AllowComments' => 1
 	);
 	
-	function getCMSFields() {
+	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 		
 		$fields->removeFieldFromTab('Root.Main', 'Date');

@@ -21,6 +21,7 @@ $default: #f938ab;
 
 body {
 	background: #191919;
+	background: linear-gradient(to bottom, #191919, #303030);
 }
 .contain-to-grid .top-bar {
 	margin-bottom: 0;
@@ -155,8 +156,9 @@ h2,
  * --------------------------------------------------------------- */
 
 .blog-header {
-	background-position: top center;
 	background-attachment: fixed;
+	background-position: center 45px;
+	background-repeat: no-repeat;
 	height: 300px;
 	.columns {
 		margin-top: 70px;
@@ -225,6 +227,9 @@ footer {
 		&:hover,
 		&.active {
 			background: #333;
+		}
+		&:hover {
+			cursor: pointer;
 		}
 	}
 }

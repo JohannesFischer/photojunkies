@@ -2,9 +2,15 @@
 
 class ControllerTest extends FunctionalTest {
 	
-	static $fixture_file = 'ControllerTest.yml';
+	protected static $fixture_file = 'ControllerTest.yml';
 
 	protected $autoFollowRedirection = false;
+	
+	protected $requiredExtensions = array(
+		'ControllerTest_AccessBaseController' => array(
+			'ControllerTest_AccessBaseControllerExtension'
+		)
+	);
 	
 	public function testDefaultAction() {
 		/* For a controller with a template, the default action will simple run that template. */
@@ -31,34 +37,113 @@ class ControllerTest extends FunctionalTest {
 	}
 	
 	public function testUndefinedActions() {
-		$response = Director::test('ControllerTest_AccessUnsecuredSubController/undefinedaction');
+		$response = $this->get('ControllerTest_IndexSecuredController/undefinedaction');
+		$this->assertInstanceOf('SS_HTTPResponse', $response);
 		$this->assertEquals(404, $response->getStatusCode(), 'Undefined actions return a not found response.');
 	}
 	
 	public function testAllowedActions() {
 		$adminUser = $this->objFromFixture('Member', 'admin');
 		
-		$response = $this->get("ControllerTest_AccessBaseController/unsecuredaction");
+		$response = $this->get("ControllerTest_UnsecuredController/");
 		$this->assertEquals(200, $response->getStatusCode(),
-			'Access granted on action without $allowed_actions on defining controller'
+			'Access granted on index action without $allowed_actions on defining controller, ' .
+			'when called without an action in the URL'
 		);
 
-		$response = $this->get("ControllerTest_AccessBaseController/onlysecuredinsubclassaction");
+		$response = $this->get("ControllerTest_UnsecuredController/index");
+		$this->assertEquals(200, $response->getStatusCode(),
+			'Access denied on index action without $allowed_actions on defining controller, ' .
+			'when called with an action in the URL'
+		);
+
+		Config::inst()->update('RequestHandler', 'require_allowed_actions', false);
+		$response = $this->get("ControllerTest_UnsecuredController/index");
+		$this->assertEquals(200, $response->getStatusCode(),
+			'Access granted on index action without $allowed_actions on defining controller, ' .
+			'when called with an action in the URL, and explicitly allowed through config'
+		);
+		Config::inst()->update('RequestHandler', 'require_allowed_actions', true);
+
+		$response = $this->get("ControllerTest_UnsecuredController/method1");
+		$this->assertEquals(403, $response->getStatusCode(),
+			'Access denied on action without $allowed_actions on defining controller, ' .
+			'when called without an action in the URL'
+		);
+
+		Config::inst()->update('RequestHandler', 'require_allowed_actions', false);
+		$response = $this->get("ControllerTest_UnsecuredController/method1");
 		$this->assertEquals(200, $response->getStatusCode(),
 			'Access granted on action without $allowed_actions on defining controller, ' .
-			'even when action is secured in subclasses'
+			'when called without an action in the URL, and explicitly allowed through config'
+		);
+		Config::inst()->update('RequestHandler', 'require_allowed_actions', true);
+		
+		$response = $this->get("ControllerTest_AccessBaseController/");
+		$this->assertEquals(200, $response->getStatusCode(),
+			'Access granted on index with empty $allowed_actions on defining controller, ' .
+			'when called without an action in the URL'
+		);
+
+		$response = $this->get("ControllerTest_AccessBaseController/index");
+		$this->assertEquals(200, $response->getStatusCode(),
+			'Access granted on index with empty $allowed_actions on defining controller, ' .
+			'when called with an action in the URL'
 		);
 		
-		$response = $this->get("ControllerTest_AccessSecuredController/onlysecuredinsubclassaction");
+		$response = $this->get("ControllerTest_AccessBaseController/method1");
+		$this->assertEquals(403, $response->getStatusCode(),
+			'Access denied on action with empty $allowed_actions on defining controller'
+		);
+
+		$response = $this->get("ControllerTest_AccessBaseController/method2");
+		$this->assertEquals(403, $response->getStatusCode(),
+			'Access denied on action with empty $allowed_actions on defining controller, ' .
+			'even when action is allowed in subclasses (allowed_actions don\'t inherit)'
+		);
+
+		$response = $this->get("ControllerTest_AccessSecuredController/");
+		$this->assertEquals(200, $response->getStatusCode(),
+			'Access granted on index with non-empty $allowed_actions on defining controller, ' .
+			'even when index isn\'t specifically mentioned in there'
+		);
+		
+		$response = $this->get("ControllerTest_AccessSecuredController/method1");
+		$this->assertEquals(403, $response->getStatusCode(),
+			'Access denied on action which is only defined in parent controller, ' .
+			'even when action is allowed in currently called class (allowed_actions don\'t inherit)'
+		);
+
+		$response = $this->get("ControllerTest_AccessSecuredController/method2");
+		$this->assertEquals(200, $response->getStatusCode(),
+			'Access granted on action originally defined with empty $allowed_actions on parent controller, ' .
+			'because it has been redefined in the subclass'
+		);
+
+		$response = $this->get("ControllerTest_AccessSecuredController/templateaction");
 		$this->assertEquals(403, $response->getStatusCode(),
 			'Access denied on action with $allowed_actions on defining controller, ' .
-			'even if action is unsecured on parent class'
+			'if action is not a method but rather a template discovered by naming convention'
 		);
+
+		$response = $this->get("ControllerTest_AccessSecuredController/templateaction");
+		$this->assertEquals(403, $response->getStatusCode(),
+			'Access denied on action with $allowed_actions on defining controller, ' .
+			'if action is not a method but rather a template discovered by naming convention'
+		);
+
+		$this->session()->inst_set('loggedInAs', $adminUser->ID);
+		$response = $this->get("ControllerTest_AccessSecuredController/templateaction");
+		$this->assertEquals(200, $response->getStatusCode(),
+			'Access granted for logged in admin on action with $allowed_actions on defining controller, ' .
+			'if action is not a method but rather a template discovered by naming convention'
+		);
+		$this->session()->inst_set('loggedInAs', null);
 
 		$response = $this->get("ControllerTest_AccessSecuredController/adminonly");
 		$this->assertEquals(403, $response->getStatusCode(),
 			'Access denied on action with $allowed_actions on defining controller, ' .
-			'when action is not defined on any parent classes'
+			'when restricted by unmatched permission code'
 		);
 
 		$response = $this->get("ControllerTest_AccessSecuredController/aDmiNOnlY");
@@ -67,49 +152,65 @@ class ControllerTest extends FunctionalTest {
 			'regardless of capitalization'
 		);
 		
-		// TODO Change this API
-		$response = $this->get('ControllerTest_AccessUnsecuredSubController/unsecuredaction');
-		$this->assertEquals(200, $response->getStatusCode(), 
-			"Controller without a specified allowed_actions allows its own actions through"
+		$response = $this->get('ControllerTest_AccessSecuredController/protectedmethod');
+		$this->assertEquals(404, $response->getStatusCode(), 
+			"Access denied to protected method even if its listed in allowed_actions"
 		);
-
-		$response = $this->get('ControllerTest_AccessUnsecuredSubController/adminonly');
-		$this->assertEquals(403, $response->getStatusCode(), 
-			"Controller without a specified allowed_actions still disallows actions defined on parents"
-		);
-		
-		$response = $this->get("ControllerTest_AccessAsteriskSecuredController/index");
-		$this->assertEquals(403, $response->getStatusCode(),
-			"Actions can be globally disallowed by using asterisk (*) for index method"
-		);
-		
-		$response = $this->get("ControllerTest_AccessAsteriskSecuredController/onlysecuredinsubclassaction");
-		$this->assertEquals(404, $response->getStatusCode(),
-			"Actions can be globally disallowed by using asterisk (*) instead of a method name, " .
-			"in which case they'll be marked as 'not found'"
-		);
-		
-		$response = $this->get("ControllerTest_AccessAsteriskSecuredController/unsecuredaction");
-		$this->assertEquals(200, $response->getStatusCode(),
-			"Actions can be overridden to be allowed if globally disallowed by using asterisk (*)"
-		);
-		
+				
 		$this->session()->inst_set('loggedInAs', $adminUser->ID);
 		$response = $this->get("ControllerTest_AccessSecuredController/adminonly");
-		$this->assertEquals(
-			200, 
-			$response->getStatusCode(), 
+		$this->assertEquals(200, $response->getStatusCode(), 
 			"Permission codes are respected when set in \$allowed_actions"
 		);
+		$this->session()->inst_set('loggedInAs', null);
 
-		$response = $this->get("ControllerTest_AccessUnsecuredSubController/adminonly");
-		$this->assertEquals(200, $response->getStatusCode(),
-			"Actions can be globally disallowed by using asterisk (*) instead of a method name"
+		$response = $this->get('ControllerTest_AccessBaseController/extensionmethod1');
+		$this->assertEquals(200, $response->getStatusCode(), 
+			"Access granted to method defined in allowed_actions on extension, " .
+			"where method is also defined on extension"
+		);
+		
+		$response = $this->get('ControllerTest_AccessSecuredController/extensionmethod1');
+		$this->assertEquals(200, $response->getStatusCode(), 
+			"Access granted to method defined in allowed_actions on extension, " .
+			"where method is also defined on extension, even when called in a subclass"
+		);
+		
+		$response = $this->get('ControllerTest_AccessBaseController/extensionmethod2');
+		$this->assertEquals(404, $response->getStatusCode(),
+			"Access denied to method not defined in allowed_actions on extension, " .
+			"where method is also defined on extension"
+		);
+		
+		$response = $this->get('ControllerTest_IndexSecuredController/');
+		$this->assertEquals(403, $response->getStatusCode(), 
+			"Access denied when index action is limited through allowed_actions, " .
+			"and doesn't satisfy checks, and action is empty"
+		);
+		
+		$response = $this->get('ControllerTest_IndexSecuredController/index');
+		$this->assertEquals(403, $response->getStatusCode(), 
+			"Access denied when index action is limited through allowed_actions, " .
+			"and doesn't satisfy checks"
 		);
 
+		$this->session()->inst_set('loggedInAs', $adminUser->ID);
+		$response = $this->get('ControllerTest_IndexSecuredController/');
+		$this->assertEquals(200, $response->getStatusCode(),
+			"Access granted when index action is limited through allowed_actions, " .
+			"and does satisfy checks"
+		);
 		$this->session()->inst_set('loggedInAs', null);
 	}
 	
+	/**
+	 * @expectedException PHPUnit_Framework_Error
+	 * @expectedExceptionMessage Wildcards (*) are no longer valid
+	 */
+	public function testWildcardAllowedActions() {
+		$this->get('ControllerTest_AccessWildcardSecuredController');
+	}
+
 	/**
 	 * Test Controller::join_links()
 	 */
@@ -161,26 +262,66 @@ class ControllerTest extends FunctionalTest {
 	 */
 	public function testHasAction() {
 		$controller = new ControllerTest_HasAction();
+		$unsecuredController = new ControllerTest_HasAction_Unsecured();
+		$securedController = new ControllerTest_AccessSecuredController();
 		
-		$this->assertFalse($controller->hasAction('1'), 'Numeric actions do not slip through.');
-		//$this->assertFalse($controller->hasAction('lowercase_permission'),
-		//'Lowercase permission does not slip through.');
-		$this->assertFalse($controller->hasAction('undefined'), 'undefined actions do not exist');
-		$this->assertTrue($controller->hasAction('allowed_action'), 'allowed actions are recognised');
-		$this->assertTrue($controller->hasAction('template_action'), 'action-specific templates are recognised');
-		
-		$unsecured = new ControllerTest_HasAction_Unsecured();
+		$this->assertFalse(
+			$controller->hasAction('1'), 
+			'Numeric actions do not slip through.'
+		);
+		//$this->assertFalse(
+		//	$controller->hasAction('lowercase_permission'),
+		//	'Lowercase permission does not slip through.'
+		//);
+		$this->assertFalse(
+			$controller->hasAction('undefined'), 
+			'undefined actions do not exist'
+		);
+		$this->assertTrue(
+			$controller->hasAction('allowed_action'), 
+			'allowed actions are recognised'
+		);
+		$this->assertTrue(
+			$controller->hasAction('template_action'), 
+			'action-specific templates are recognised'
+		);
 		
 		$this->assertTrue (
-			$unsecured->hasAction('defined_action'),
+			$unsecuredController->hasAction('defined_action'),
 			'Without an allowed_actions, any defined methods are recognised as actions'
+		);
+
+		$this->assertTrue(
+			$securedController->hasAction('adminonly'),
+			'Method is generally visible even if its denied via allowed_actions'
+		);
+
+		$this->assertFalse(
+			$securedController->hasAction('protectedmethod'),
+			'Method is not visible when protected, even if its defined in allowed_actions'
+		);
+
+		$this->assertTrue(
+			$securedController->hasAction('extensionmethod1'),
+			'Method is visible when defined on an extension and part of allowed_actions'
+		);
+
+		$this->assertFalse(
+			$securedController->hasAction('internalextensionmethod'),
+			'Method is not visible when defined on an extension, but not part of allowed_actions'
+		);
+
+		$this->assertFalse(
+			$securedController->hasAction('protectedextensionmethod'),
+			'Method is not visible when defined on an extension, part of allowed_actions, ' .
+			'but with protected visibility'
 		);
 	}
 
 	/* Controller::BaseURL no longer exists, but was just a direct call to Director::BaseURL, so not sure what this
 	 * code was supposed to test
 	public function testBaseURL() {
-		Director::setBaseURL('/baseurl/');
+		Config::inst()->update('Director', 'alternate_base_url', '/baseurl/');
 		$this->assertEquals(Controller::BaseURL(), Director::BaseURL());
 	}
 	*/
@@ -237,8 +378,16 @@ class ControllerTest extends FunctionalTest {
  * Simple controller for testing
  */
 class ControllerTest_Controller extends Controller implements TestOnly {
+	
 	public $Content = "default content";
 	
+	private static $allowed_actions = array(
+		'methodaction',
+		'stringaction',
+		'redirectbacktest',
+		'templateaction'
+	);
+
 	public function methodaction() {
 		return array(
 			"Content" => "methodaction content"
@@ -254,116 +403,87 @@ class ControllerTest_Controller extends Controller implements TestOnly {
 	}
 }
 
-/**
- * Allowed actions flattened:
- * - unsecuredaction: *
- * - onlysecuredinsubclassaction: *
- * - unsecuredinparentclassaction: *
- * - unsecuredinsubclassaction: *
- */
+class ControllerTest_UnsecuredController extends Controller implements TestOnly {
+
+	// Not defined, allow access to all
+	// static $allowed_actions = array();
+
+	// Granted for all
+	public function method1() {}
+
+	// Granted for all
+	public function method2() {}
+	}
+
 class ControllerTest_AccessBaseController extends Controller implements TestOnly {
-	// Accessible by all
-	public function unsecuredaction() {
-		return 'unsecuredaction was called.';
+
+	private static $allowed_actions = array();
+	
+	// Denied for all
+	public function method1() {}
+
+	// Denied for all
+	public function method2() {}
 	}
 
-	// Accessible by all
-	public function onlysecuredinsubclassaction() {
-		return 'onlysecuredinsubclass was called.';
-	}
-
-	// Accessible by all
-	public function unsecuredinparentclassaction() {
-		return 'unsecuredinparentclassaction was called.';
-	}
-
-	// Accessible by all
-	public function unsecuredinsubclassaction() {
-		return 'unsecuredinsubclass was called.';
-	}
-}
-
-/**
- * Allowed actions flattened:
- * - unsecuredaction: *
- * - onlysecuredinsubclassaction: ADMIN (parent: *)
- * - unsecuredinparentclassaction: *
- * - unsecuredinsubclassaction: (none) (parent: *)
- * - adminonly: ADMIN
- */
 class ControllerTest_AccessSecuredController extends ControllerTest_AccessBaseController implements TestOnly {
 	
-	static $allowed_actions = array(
-		"onlysecuredinsubclassaction" => 'ADMIN',
+	private static $allowed_actions = array(
+		"method1", // denied because only defined in parent
+		"method2" => true, // granted because its redefined
 		"adminonly" => "ADMIN",
+		'templateaction' => 'ADMIN'
 	);
-		
-	// Accessible by ADMIN only
-	public function onlysecuredinsubclassaction() {
-		return 'onlysecuredinsubclass was called.';
-	}
 
-	// Not accessible, since overloaded but not mentioned in $allowed_actions
-	public function unsecuredinsubclassaction() {
-		return 'unsecuredinsubclass was called.';
-	}
+	public function method2() {}
 
-	// Accessible by all, since only defined in parent class
-	//public function unsecuredinparentclassaction() {
+	public function adminonly() {}
 
-	// Accessible by ADMIN only
-	public function adminonly() {
-		return "You must be an admin!";
-	}
+	protected function protectedmethod()  {}
+
 }
 
-/**
- * Allowed actions flattened:
- * - unsecuredaction: *
- * - onlysecuredinsubclassaction: ADMIN (parent: *)
- * - unsecuredinparentclassaction: ADMIN (parent: *)
- * - unsecuredinsubclassaction: (none) (parent: *)
- * - adminonly: ADMIN (parent: ADMIN)
- */
-class ControllerTest_AccessAsteriskSecuredController extends ControllerTest_AccessBaseController implements TestOnly {
+class ControllerTest_AccessWildcardSecuredController extends ControllerTest_AccessBaseController implements TestOnly {
 	
-	static $allowed_actions = array(
-		"*" => "ADMIN",
-		'unsecuredaction' => true,
+	private static $allowed_actions = array(
+		"*" => "ADMIN", // should throw exception
 	);
 	
-	// Accessible by ADMIN only
-	public function adminonly() {
-		return "You must be an admin!";
 	}
 	
-	// Accessible by all
-	public function unsecuredaction() {
-		return "Allowed for everybody";
-	}
-}
-
-/**
- * Allowed actions flattened:
- * - unsecuredaction: *
- * - onlysecuredinsubclassaction: ADMIN (parent: *)
- * - unsecuredinparentclassaction: *
- * - unsecuredinsubclassaction: (none) (parent: *)
- * - adminonly: ADMIN
- */
-class ControllerTest_AccessUnsecuredSubController extends ControllerTest_AccessSecuredController implements TestOnly {
+class ControllerTest_IndexSecuredController extends ControllerTest_AccessBaseController implements TestOnly {
 	
-	// No $allowed_actions defined here
-
-	// Accessible by ADMIN only, defined in parent class
-	public function onlysecuredinsubclassaction() {
-		return 'onlysecuredinsubclass was called.';
+	private static $allowed_actions = array(
+		"index" => "ADMIN",
+	);
+	
 	}
-}
+
+class ControllerTest_AccessBaseControllerExtension extends Extension implements TestOnly {
+	
+	private static $allowed_actions = array(
+		"extensionmethod1" => true, // granted because defined on this class
+		"method1" => true, // ignored because method not defined on this class
+		"method2" => true, // ignored because method not defined on this class
+		"protectedextensionmethod" => true, // ignored because method is protected
+	);
+
+	// Allowed for all
+	public function extensionmethod1() {}
+
+	// Denied for all, not defined
+	public function extensionmethod2() {}
+
+	// Denied because its protected
+	protected function protectedextensionmethod() {}
+
+	public function internalextensionmethod() {}
+
+	}
 
 class ControllerTest_HasAction extends Controller {
 	
-	public static $allowed_actions = array (
+	private static $allowed_actions = array (
 		'allowed_action',
 		//'other_action' => 'lowercase_permission'
 	);

@@ -16,32 +16,47 @@ We ask for this so that the ownership in the license is clear and unambiguous, a
 
 ## Step-by-step: From forking to sending the pull request
 
-1. Follow the [Installation through Composer](../../installation/composer#contributing) instructions, 
-which explain how to fork the core modules and add the correct "upstream" remote. In short:
+1. Install the project through composer. The process is described in detail in "[Installation through Composer](../../installation/composer#contributing)".
 
  		composer create-project --keep-vcs --dev silverstripe/installer ./my/website/folder 3.0.x-dev
 
-2. [Branch for new issue and develop on issue branch](code#branch-for-new-issue-and-develop-on-issue-branch)
+2. Edit the `composer.json`. Remove the `@stable` markers from the core modules in there. 
+   Add your fork URLs, in this example a fork of the `cms` module on the `sminnee` github account 
+   (replace with your own fork URL). Run a `composer update` afterwards.
+
+		"repositories": [
+			{
+				"type": "vcs",
+				"url": "git@github.com:sminnee/silverstripe-cms.git"
+			}
+		]
+
+3. Add a new "upstream" remote so you can track the original repository for changes, and rebase/merge your fork as required.
+
+		cd cms
+		git remote add -f upstream git://github.com/silverstripe/silverstripe-cms.git
+
+4. [Branch for new issue and develop on issue branch](code#branch-for-new-issue-and-develop-on-issue-branch)
 
 		git branch ###-description
 		git checkout ###-description
 
-3. As time passes, the upstream repository accumulates new commits. Keep your working copy's master branch and issue branch up to date by periodically [rebasing your development branch on the latest upstream](code#rebase-your-development-branch-on-the-latest-upstream).
+5. As time passes, the upstream repository accumulates new commits. Keep your working copy's master branch and issue branch up to date by periodically [rebasing your development branch on the latest upstream](code#rebase-your-development-branch-on-the-latest-upstream).
 
 		# [make sure all your changes are committed as necessary in branch]
 		git fetch upstream
 		git rebase upstream/master
 
-4. When development is complete, [squash all commit related to a single issue into a single commit](code#squash-all-commits-related-to-a-single-issue-into-a-single-commit).
+6. When development is complete, [squash all commit related to a single issue into a single commit](code#squash-all-commits-related-to-a-single-issue-into-a-single-commit).
 
 		git fetch upstream
 		git rebase -i upstream/master
 
-5. Push release candidate branch to GitHub 
+7. Push release candidate branch to GitHub 
 
 		git push origin ###-description
 
-6. Issue pull request on GitHub.  Visit your forked respoistory on GitHub.com and click the "Create Pull Request" button nex tot the new branch.
+8. Issue pull request on GitHub.  Visit your forked respoistory on GitHub.com and click the "Create Pull Request" button nex tot the new branch.
 
 The core team is then responsible for reviewing patches and deciding if they will make it into core.  If
 there are any problems they will follow up with you, so please ensure they have a way to contact you! 
@@ -56,7 +71,7 @@ If you aren't familiar with git and GitHub, try reading the ["GitHub bootcamp do
 We also found the [free online git book](http://progit.org/book/) and the [git crash course](http://gitref.org/) useful.
 If you're familiar with it, here's the short version of what you need to know. Once you fork and download the code:
 
-  *  **Don't develop on the master branch.** Always create a development branch specific to "the issue" you're working on (mostly on [open.silverstripe.org](http://open.silverstripe.org)). Name it by issue number and description. For example, if you're working on Issue #100, a `DataObject::get_one()` bugfix, your development branch should be called 100-dataobject-get-one. If you decide to work on another issue mid-stream, create a new branch for that issue--don't work on both in one branch.
+  *  **Don't develop on the master branch.** Always create a development branch specific to "the issue" you're working on (mostly on our [bugtracker](/misc/contributing/issues)). Name it by issue number and description. For example, if you're working on Issue #100, a `DataObject::get_one()` bugfix, your development branch should be called 100-dataobject-get-one. If you decide to work on another issue mid-stream, create a new branch for that issue--don't work on both in one branch.
 
   * **Do not merge the upstream master** with your development branch; *rebase* your branch on top of the upstream master.
 
@@ -67,7 +82,7 @@ If you're familiar with it, here's the short version of what you need to know. O
   * **Choose the correct branch**: Assume the current release is 3.0.3, and 3.1.0 is in beta state.
   Most pull requests should go against the `3.1.x-dev` *pre-release branch*, only critical bugfixes
   against the `3.0.x-dev` *release branch*. If you're changing an API or introducing a major feature,
-  the pull request should go against `master` (read more about our [release process](/misc/release-process)).
+  the pull request should go against `master` (read more about our [release process](/misc/release-process)). Branches are periodically merged "upwards" (3.0 into 3.1, 3.1 into master).
 
 ### Editing files directly on GitHub.com
 

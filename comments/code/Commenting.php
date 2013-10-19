@@ -25,13 +25,21 @@ class Commenting {
 	private static $default_config = array(
 		'require_login' => false, // boolean, whether a user needs to login
 		'required_permission' => false,  // required permission to comment (or array of permissions)
-		'use_ajax_commenting' => true, // use ajax to post comments.
+		'include_js' => true, // Enhance operation by ajax behaviour on moderation links
+		'use_gravatar' => false, // set to true to show gravatar icons,
+		'gravatar_size' => 80, // size of gravatar in pixels.  This is the same as the standard default
+		'gravatar_default' => 'identicon', // theme for 'not found' gravatar (see http://gravatar.com/site/implement/images/)
+		'gravatar_rating' => 'g', // gravatar rating. This is the same as the standard default
 		'show_comments_when_disabled' => false, // when comments are disabled should we show older comments (if available)
 		'order_comments_by' => "\"Created\" DESC",
 		'comments_per_page' => 10,
 		'comments_holder_id' => "comments-holder", // id for the comments holder
 		'comment_permalink_prefix' => "comment-", // id prefix for each comment. If needed make this different
-		'require_moderation' => false
+		'require_moderation' => false,
+		'require_moderation_nonmembers' => false, // requires moderation for comments posted by non-members. 'require_moderation' overrides this if set.
+		'html_allowed' => false, // allow for sanitized HTML in comments
+		'html_allowed_elements' => array('a', 'img', 'i', 'b'),
+		'use_preview' => false, // preview formatted comment (when allowing HTML). Requires include_js=true
 	);
 	
 	/**
@@ -50,7 +58,7 @@ class Commenting {
 		
 		self::$enabled_classes[$class] = $settings;
 
-		Object::add_extension($class, 'CommentsExtension');
+		$class::add_extension('CommentsExtension');
 	}
 	
 	/**
@@ -64,7 +72,7 @@ class Commenting {
 			unset(self::$enabled_classes[$class]);
 		}
 		
-		Object::remove_extension($class, 'CommentsExtension');
+		$class::remove_extension('CommentsExtension');
 	}
 
 	/**
@@ -73,7 +81,7 @@ class Commenting {
 	 * @return bool
 	 */
 	public static function has_commenting($class) {
-		return (isset(self::$enabled_classes[$class]));
+	  return (isset(self::$enabled_classes[$class]));
 	}
 
 	/**
@@ -114,8 +122,8 @@ class Commenting {
 	 * @throws Exception 
 	 * @return mixed
 	 */
-	public static function get_config_value($class, $key) {
-		if(isset(self::$enabled_classes[$class])) {
+	public static function get_config_value($class = null, $key) {
+		if(!$class || isset(self::$enabled_classes[$class])) {
 			// custom configuration
 			if(isset(self::$enabled_classes[$class][$key])) return self::$enabled_classes[$class][$key];
 			

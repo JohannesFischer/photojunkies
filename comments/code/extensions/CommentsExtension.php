@@ -12,33 +12,16 @@ class CommentsExtension extends DataExtension {
 	 * Adds a relationship between this {@link DataObject} and its
 	 * {@link Comment} objects. If the owner class is a sitetree class
 	 * it also enables a checkbox allowing comments to be turned off and off
-	 * 
-	 * @return array
 	 */
-	public function extraStatics($class = null, $extension = null) {
-		$fields = array();
+	public static function get_extra_config($class, $extension, $args = null) {
+		$config = array('has_many' => array('Comments' => 'Comment'));
 		
-		$relationships = array(
-			'has_many' => array(
-				'Comments' => 'Comment'
-			)
-		);
-
 		// if it is attached to the SiteTree then we need to add ProvideComments
-		// cannot check $this->owner as this in intialised via call_user_func
-		$args = func_get_args();
-		
-		if($args && ($owner = array_shift($args))) {
-			if(is_subclass_of($owner, 'SiteTree') || $owner == "SiteTree") {
-				$fields = array(
-					'db' => array(
-						'ProvideComments' => 'Boolean'
-					)
-				);
-			}
+		if(is_subclass_of($class, 'SiteTree') || $class == 'SiteTree') {
+			$config['db'] =  array('ProvideComments' => 'Boolean');
 		}
 
-		return array_merge($fields, $relationships);
+		return $config;
 	}
 
 	
@@ -66,20 +49,37 @@ class CommentsExtension extends DataExtension {
 	 */
 	public function Comments() {
 		$order = Commenting::get_config_value($this->ownerBaseClass, 'order_comments_by');
-		
-		$list = new PaginatedList(Comment::get()->where(sprintf(
-			"ParentID = '%s' AND BaseClass = '%s'", $this->owner->ID, $this->ownerBaseClass
-		))->sort($order));
+
+		$list = Comment::get()->filter(array(
+			'ParentID' => $this->owner->ID,
+			'BaseClass' => $this->ownerBaseClass
+		))->sort($order);
+
+		// Filter content for unauthorised users
+		if (!($member = Member::currentUser()) || !Permission::checkMember($member, 'CMS_ACCESS_CommentAdmin')) {
+		  
+		  // Filter unmoderated comments for non-administrators if moderation is enabled
+		  if (Commenting::get_config_value($this->ownerBaseClass, 'require_moderation') || Commenting::get_config_value($this->ownerBaseClass, 'require_moderation_nonmembers')) {
+		    $list = $list->filter('Moderated', 1);
+		  } else {
+		    // Filter spam comments for non-administrators if auto-moderted
+		    $list = $list->filter('IsSpam', 0);
+		  }
+		}
+
+		$list = new PaginatedList($list);
 
 		$list->setPageLength(Commenting::get_config_value(
 			$this->ownerBaseClass, 'comments_per_page'
 		));
 
+
+		$controller = Controller::curr();	
+		$list->setPageStart($controller->request->getVar("commentsstart". $this->owner->ID));
 		$list->setPaginationGetVar("commentsstart". $this->owner->ID);
 
 		return $list;
 	}
-	
 	
 	/**
 	 * Comments interface for the front end. Includes the CommentAddForm and the composition
@@ -93,13 +93,20 @@ class CommentsExtension extends DataExtension {
 	 * @see docs/en/Extending
 	 */
 	public function CommentsForm() {
+		if(Commenting::has_commenting($this->ownerBaseClass) && Commenting::get_config_value($this->ownerBaseClass, 'include_js')) {
+			Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
+			Requirements::javascript(THIRDPARTY_DIR . '/jquery-validate/lib/jquery.form.js');
+			Requirements::javascript(THIRDPARTY_DIR . '/jquery-validate/jquery.validate.pack.js');
+			Requirements::javascript('comments/javascript/CommentsInterface.js');
+		}
+
 		$interface = new SSViewer('CommentsInterface');
 		
 		// detect whether we comments are enabled. By default if $CommentsForm is included
 		// on a {@link DataObject} then it is enabled, however {@link SiteTree} objects can
 		// trigger comments on / off via ProvideComments
 		$enabled = (!$this->attachedToSiteTree() || $this->owner->ProvideComments) ? true : false;
-		
+
 		// do not include the comments on pages which don't have id's such as security pages
 		if($this->owner->ID < 0) return false;
 		
@@ -107,6 +114,9 @@ class CommentsExtension extends DataExtension {
 		$controller->setOwnerRecord($this->owner);
 		$controller->setBaseClass($this->ownerBaseClass);
 		$controller->setOwnerController(Controller::curr());
+
+		$moderatedSubmitted = Session::get('CommentsModerated');
+		Session::clear('CommentsModerated');
 		
 		$form = ($enabled) ? $controller->CommentsForm() : false;
 		
@@ -119,7 +129,9 @@ class CommentsExtension extends DataExtension {
 			'RssLink'					=> "CommentingController/rss",
 			'RssLinkPage'				=> "CommentingController/rss/". $this->ownerBaseClass . '/'.$this->owner->ID,
 			'CommentsEnabled' 			=> $enabled,
+			'Parent'					=> $this->owner,
 			'AddCommentForm'			=> $form,
+			'ModeratedSubmitted'		=> $moderatedSubmitted,
 			'Comments'					=> $this->Comments()
 		)));
 	}

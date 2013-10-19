@@ -1,7 +1,7 @@
 <?php
 
 class VirtualPageTest extends SapphireTest {
-	static $fixture_file = 'VirtualPageTest.yml';
+	protected static $fixture_file = 'VirtualPageTest.yml';
 	
 	protected $extraDataObjects = array(
 		'VirtualPageTest_ClassA',
@@ -16,18 +16,28 @@ class VirtualPageTest extends SapphireTest {
 	public function setUp() {
 		parent::setUp();
 
-		$this->origInitiallyCopiedFields = VirtualPage::$initially_copied_fields;
-		VirtualPage::$initially_copied_fields[] = 'MyInitiallyCopiedField';
-		$this->origNonVirtualField = VirtualPage::$non_virtual_fields;
-		VirtualPage::$non_virtual_fields[] = 'MyNonVirtualField';
-		VirtualPage::$non_virtual_fields[] = 'MySharedNonVirtualField';
+		$this->origInitiallyCopiedFields = VirtualPage::config()->initially_copied_fields;
+		Config::inst()->remove('VirtualPage', 'initially_copied_fields');
+		VirtualPage::config()->initially_copied_fields = array_merge(
+			$this->origInitiallyCopiedFields,
+			array('MyInitiallyCopiedField')
+		);
+		
+		$this->origNonVirtualField = VirtualPage::config()->non_virtual_fields;
+		Config::inst()->remove('VirtualPage', 'non_virtual_fields');
+		VirtualPage::config()->non_virtual_fields = array_merge(
+			$this->origNonVirtualField,
+			array('MyNonVirtualField', 'MySharedNonVirtualField')
+		);
 	}
 
 	public function tearDown() {
 		parent::tearDown();
 
-		VirtualPage::$initially_copied_fields = $this->origInitiallyCopiedFields;
-		VirtualPage::$non_virtual_fields = $this->origNonVirtualField;
+		Config::inst()->remove('VirtualPage', 'initially_copied_fields');
+		Config::inst()->remove('VirtualPage', 'non_virtual_fields');
+		VirtualPage::config()->initially_copied_fields = $this->origInitiallyCopiedFields;
+		VirtualPage::config()->non_virtual_fields = $this->origNonVirtualField;
 	}
 	
 	/**
@@ -579,36 +589,36 @@ class VirtualPageTest extends SapphireTest {
 
 class VirtualPageTest_ClassA extends Page implements TestOnly {
 	
-	static $db = array(
+	private static $db = array(
 		'MyInitiallyCopiedField' => 'Text',
 		'MyVirtualField' => 'Text',
 		'MyNonVirtualField' => 'Text',
 	);
 	
-	static $allowed_children = array('VirtualPageTest_ClassB');
+	private static $allowed_children = array('VirtualPageTest_ClassB');
 }
 
 class VirtualPageTest_ClassB extends Page implements TestOnly {
-	static $allowed_children = array('VirtualPageTest_ClassC'); 
+	private static $allowed_children = array('VirtualPageTest_ClassC'); 
 }
 
 class VirtualPageTest_ClassC extends Page implements TestOnly {
-	static $allowed_children = array();
+	private static $allowed_children = array();
 }
 
 class VirtualPageTest_NotRoot extends Page implements TestOnly {
-	static $can_be_root = false;
+	private static $can_be_root = false;
 }
 
 class VirtualPageTest_VirtualPageSub extends VirtualPage implements TestOnly {
-	static $db = array(
+	private static $db = array(
 		'MyProperty' => 'Varchar',
 	);
 }
 
 class VirtualPageTest_PageExtension extends DataExtension implements TestOnly {
 
-	static $db = array(
+	private static $db = array(
 		// These fields are just on an extension to simulate shared properties between Page and VirtualPage.
 		// Not possible through direct $db definitions due to VirtualPage inheriting from Page, and Page being defined elsewhere.
 		'MySharedVirtualField' => 'Text',

@@ -5,41 +5,38 @@
  * @package blog
  */
 class BlogEntry extends Page {
-	static $db = array(
+
+	private static $db = array(
 		"Date" => "SS_Datetime",
 		"Author" => "Text",
 		"Tags" => "Text"
 	);
 	
-	static $default_parent = 'BlogHolder';
+	private static $default_parent = 'BlogHolder';
 	
-	static $can_be_root = false;
+	private static $can_be_root = false;
 	
-	static $icon = "blog/images/blogpage-file.png";
+	private static $icon = "blog/images/blogpage-file.png";
 
-	static $description = "An individual blog entry";
+	private static $description = "An individual blog entry";
 	
-	static $singular_name = 'Blog Entry Page';
+	private static $singular_name = 'Blog Entry Page';
 	
-	static $plural_name = 'Blog Entry Pages';
+	private static $plural_name = 'Blog Entry Pages';
 		
-	static $has_one = array();
+	private static $has_one = array();
 	
-	static $has_many = array();
+	private static $has_many = array();
 	
-	static $many_many = array();
+	private static $many_many = array();
 	
-	static $belongs_many_many = array();
+	private static $belongs_many_many = array();
 	
-	static $defaults = array(
+	private static $defaults = array(
 		"ProvideComments" => true,
 		'ShowInMenus' => false
 	);
 	
-	static $extensions = array(
-		'TrackBackDecorator'
-	);
-		
 	/**
 	 * Is WYSIWYG editing allowed?
 	 * @var boolean
@@ -73,7 +70,7 @@ class BlogEntry extends Page {
 		
 		$fields->addFieldToTab("Root.Main", $dateField = new DatetimeField("Date", _t("BlogEntry.DT", "Date")),"Content");
 		$dateField->getDateField()->setConfig('showcalendar', true);
-		$dateField->getTimeField()->setConfig('showdropdown', true);
+		$dateField->getTimeField()->setConfig('timeformat', 'H:m:s');
 		$fields->addFieldToTab("Root.Main", new TextField("Author", _t("BlogEntry.AU", "Author"), $firstName),"Content");
 		
 		if(!self::$allow_wysiwyg_editing) {
@@ -163,21 +160,6 @@ class BlogEntry extends Page {
 		return ($this->getParent()) ? $this->getParent()->Link('post') . '/' . $this->ID . '/' : false;
 	}
 	
-	/**
-	 * Check to see if trackbacks are enabled.
-	 */
-	function TrackBacksEnabled() {
-		return ($this->getParent()) ? $this->getParent()->TrackBacksEnabled : false;
-	}
-	
-	function trackbackping() {
-		if($this->TrackBacksEnabled() && $this->hasExtension('TrackBackDecorator')) {
-			return $this->decoratedTrackbackping();
-		} else {
-			Controller::curr()->redirect($this->Link());
-		}
-	}
-
 	function IsOwner() {
 		if(method_exists($this->Parent(), 'IsOwner')) {
 			return $this->Parent()->IsOwner();
@@ -238,9 +220,8 @@ class BlogEntry extends Page {
 
 class BlogEntry_Controller extends Page_Controller {
 	
-	static $allowed_actions = array(
+	private static $allowed_actions = array(
 		'index',
-		'trackbackping',
 		'unpublishPost',
 		'PageComments',
 		'SearchForm'

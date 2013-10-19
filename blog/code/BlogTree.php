@@ -11,22 +11,32 @@
 
 class BlogTree extends Page {
 
-	static $icon = "blog/images/blogtree-file.png";
+	private static $icon = "blog/images/blogtree-file.png";
 
-	static $description = "A grouping of blogs";
+	private static $description = "A grouping of blogs";
 	
-	static $singular_name = 'Blog Tree Page';
+	private static $singular_name = 'Blog Tree Page';
 	
-	static $plural_name = 'Blog Tree Pages';
+	private static $plural_name = 'Blog Tree Pages';
 	
 	// Default number of blog entries to show
 	static $default_entries_limit = 10;
 	
-	static $db = array(
+	private static $db = array(
+		'Name' => 'Varchar(255)',
+		'InheritSideBar' => 'Boolean',
 		'LandingPageFreshness' => 'Varchar',
 	);
 	
-	static $allowed_children = array(
+	private static $defaults = array(
+		'InheritSideBar' => True
+	);
+	
+	private static $has_one = array();
+
+	private static $has_many = array();
+	
+	private static $allowed_children = array(
 		'BlogTree', 'BlogHolder'
 	);
 
@@ -211,7 +221,7 @@ class BlogTree extends Page {
 
 class BlogTree_Controller extends Page_Controller {
 	
-	static $allowed_actions = array(
+	private static $allowed_actions = array(
 		'index',
 		'rss',
 		'tag',
@@ -300,7 +310,12 @@ class BlogTree_Controller extends Page_Controller {
 	 * @return String
 	 */
 	function SelectedTag() {
-		return ($this->request->latestParam('Action') == 'tag') ? Convert::raw2xml($this->request->latestParam('ID')) : '';
+		if ($this->request->latestParam('Action') == 'tag') {
+			$tag = $this->request->latestParam('ID');
+			$tag = urldecode($tag);
+			return Convert::raw2xml($tag);
+	}
+		return '';
 	}
 	
 	/**

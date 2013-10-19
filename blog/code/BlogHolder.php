@@ -12,25 +12,25 @@
  * BlogHolders have a form on them for easy posting, and an owner that can post to them, BlogTrees don't
  */
 class BlogHolder extends BlogTree implements PermissionProvider {
-	static $icon = "blog/images/blogholder-file.png";
 
-	static $description = "Displays listings of blog entries";
+	private static $icon = "blog/images/blogholder-file.png";
 	
-	static $singular_name = 'Blog Holder Page';
+	private static $description = "Displays listings of blog entries";
 	
-	static $plural_name = 'Blog Holder Pages';
+	private static $singular_name = 'Blog Holder Page';
 
-	static $db = array(
-		'TrackBacksEnabled' => 'Boolean',
+	private static $plural_name = 'Blog Holder Pages';
+
+	private static $db = array(
 		'AllowCustomAuthors' => 'Boolean',
 		'ShowFullEntry' => 'Boolean', 
 	);
 
-	static $has_one = array(
+	private static $has_one = array(
 		'Owner' => 'Member',
 	);
 
-	static $allowed_children = array(
+	private static $allowed_children = array(
 		'BlogEntry'
 	);
 
@@ -48,7 +48,6 @@ class BlogHolder extends BlogTree implements PermissionProvider {
 				->setHasEmptyDefault(true),
 			"Content"
 		);
-		$fields->addFieldToTab('Root.Main', new CheckboxField('TrackBacksEnabled', 'Enable TrackBacks'), "Content");
 		$fields->addFieldToTab('Root.Main', new CheckboxField('AllowCustomAuthors', 'Allow non-admins to have a custom author field'), "Content");
 		$fields->addFieldToTab(
 			"Root.Main", 
@@ -183,7 +182,8 @@ class BlogHolder extends BlogTree implements PermissionProvider {
 }
 
 class BlogHolder_Controller extends BlogTree_Controller {
-	static $allowed_actions = array(
+
+	private static $allowed_actions = array(
 		'index',
 		'tag',
 		'date',
@@ -235,8 +235,6 @@ class BlogHolder_Controller extends BlogTree_Controller {
 
 		if(BlogEntry::$allow_wysiwyg_editing) {
 			$contentfield = new HtmlEditorField("BlogPost", _t("BlogEntry.CN"));
-			// Force tinymce to init - otherwise Requirements::set_suffix_requirements() stops the init() call
-			Requirements::customScript("tinyMCE.init(ssTinyMceConfig);", "blog_post_tinyMCE_config");
 		} else {
 			$contentfield = new CompositeField(
 				new LiteralField("BBCodeHelper","<a id=\"BBCodeHint\" target='new'>"._t("BlogEntry.BBH")."</a><div class='clear'><!-- --></div>" ),
