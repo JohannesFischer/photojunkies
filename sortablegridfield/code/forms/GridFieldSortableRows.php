@@ -6,6 +6,7 @@
  */
 class GridFieldSortableRows implements GridField_HTMLProvider, GridField_ActionProvider, GridField_DataManipulator {
 	protected $sortColumn;
+	protected $append_to_top=false;
 	
 	/**
 	 * @param String $sortColumn Column that should be used to update the sort information
@@ -110,6 +111,16 @@ class GridFieldSortableRows implements GridField_HTMLProvider, GridField_ActionP
 	}
 	
 	/**
+	 * Sets if new records should be appended to the top or the bottom of the list
+	 * @param bool $value Boolean true to append to the top false to append to the bottom
+	 * @return GridFieldSortableRows Returns the current instance
+	 */
+	public function setAppendToTop($value) {
+		$this->append_to_top=$value;
+		return $this;
+	}
+	
+	/**
 	 * Detects and corrects items with a sort column value of 0, by appending them to the bottom of the list
 	 * @param GridField $gridField Grid Field Reference
 	 * @param SS_List $dataList Data List of items to be checked
@@ -189,20 +200,51 @@ class GridFieldSortableRows implements GridField_HTMLProvider, GridField_ActionP
 				DB::getConn()->transactionStart();
 			}
 			
+			$idCondition=null;
+			if($this->append_to_top && !($list instanceof RelationList)) {
+				$idCondition='"ID" IN(\''.implode("','", $list->getIDList()).'\')';
+			}
+			
+			if($this->append_to_top) {
+				$topIncremented=array();
+			}
 			
 			foreach($list as $obj) {
 				if($many_many) {
+					if($this->append_to_top) {
+						//Upgrade all the records (including the last inserted from 0 to 1)
+						DB::query('UPDATE "' . $table
+								. '" SET "' . $sortColumn . '" = "' . $sortColumn .'"+1'
+								. ' WHERE "' . $parentField . '" = ' . $owner->ID . (!empty($topIncremented) ? ' AND "' . $componentField . '" NOT IN(\''.implode('\',\'', $topIncremented).'\')':''));
+						
+						$topIncremented[]=$obj->ID;
+					}else {
+						//Append the last record to the bottom
+						DB::query('UPDATE "' . $table
+								. '" SET "' . $sortColumn .'" = ' . ($max + $i)
+								. ' WHERE "' . $componentField . '" = ' . $obj->ID . ' AND "' . $parentField . '" = ' . $owner->ID);
+					}
+				}else if($this->append_to_top) {
+					//Upgrade all the records (including the last inserted from 0 to 1)
 					DB::query('UPDATE "' . $table
-							. '" SET "' . $sortColumn .'" = ' . ($max + $i)
-							. ' WHERE "' . $componentField . '" = ' . $obj->ID . ' AND "' . $parentField . '" = ' . $owner->ID);
-				}else {
-					DB::query('UPDATE "' . $table
-							. '" SET "' . $sortColumn . '" = ' . ($max + $i)
-							. ' WHERE "ID" = '. $obj->ID);
-							
+							. '" SET "' . $sortColumn . '" = "' . $sortColumn .'"+1'
+							. ' WHERE '.($list instanceof RelationList ? '"' . $list->foreignKey . '" = '. $owner->ID:$idCondition) . (!empty($topIncremented) ? ' AND "ID" NOT IN(\''.implode('\',\'', $topIncremented).'\')':''));
+					
+					//LastEdited
 					DB::query('UPDATE "' . $baseDataClass
 							. '" SET "LastEdited" = \'' . date('Y-m-d H:i:s') . '\''
-							. ' WHERE "ID" = '. $obj->ID);
+							. ' WHERE '.($list instanceof RelationList ? '"' . $list->foreignKey . '" = '. $owner->ID:$idCondition) . (!empty($topIncremented) ? ' AND "ID" NOT IN(\''.implode('\',\'', $topIncremented).'\')':''));		
+					
+					$topIncremented[]=$obj->ID;
+				}else {
+					//Append the last record to the bottom
+					DB::query('UPDATE "' . $table
+							 . '" SET "' . $sortColumn . '" = ' . ($max + $i)
+							 . ' WHERE "ID" = '. $obj->ID);
+					//LastEdited
+					DB::query('UPDATE "' . $baseDataClass
+							 . '" SET "LastEdited" = \'' . date('Y-m-d H:i:s') . '\''
+							 . ' WHERE "ID" = '. $obj->ID);
 				}
 				
 				$i++;
