@@ -6,6 +6,7 @@
 		"silverstripe/cms": "3.1.*@stable",
 		"silverstripe/framework": "3.1.*@stable",
 		"silverstripe/blog": "*",
+		"silverstripe/widgets": "dev-master",
 		"silverstripe/comments": "dev-master",
 		"undefinedoffset/sortablegridfield": "dev-master"
 	},

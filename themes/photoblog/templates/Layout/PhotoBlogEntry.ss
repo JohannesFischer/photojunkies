@@ -2,7 +2,7 @@
 	<div class="row">
 		<div class="columns large-12">
 			<h2>$Title</h2>
-			<p>$Date.format(M d Y)</p>
+			<p>$Date.format('d/m/Y')</p>
 		</div>
 	</div>
 </div>
@@ -35,7 +35,7 @@
 			<% end_if %>
 			
 			<p class="authorDate">
-				<% _t('POSTEDBY', 'Posted by') %> $Author.XML <% _t('POSTEDON', 'on') %>$Date.format(M d Y) | <a href="$Link#comments-holder" title="View Comments Posted">$Comments.Count <% if IsNotOne($Comments.Count) %><% _t('COMMENTS', 'Comments') %><% else %><% _t('COMMENT', 'Comment') %><% end_if %></a>
+				<% _t('POSTEDBY', 'Posted by') %> $Author.XML <% _t('POSTEDON', 'on') %> $Date.format('d/m/Y') | <a href="$Link#comments-holder" title="View Comments Posted">$Comments.Count <% if IsNotOne($Comments.Count) %><% _t('COMMENTS', 'Comments') %><% else %><% _t('COMMENT', 'Comment') %><% end_if %></a>
 			</p>
 			<% if TagsCollection %>
 				<p class="icon tags">
@@ -53,10 +53,6 @@
 			<p class="edit-post">
 				<a href="$EditURL" id="editpost" title="<% _t('EDITTHIS', 'Edit this post') %>"><% _t('EDITTHIS', 'Edit this post') %></a> | <a href="$Link(unpublishPost)" id="unpublishpost"><% _t('UNPUBLISHTHIS', 'Unpublish this post') %></a>
 			</p>
-		<% end_if %>
-		
-		<% if TrackBacksEnabled %>
-			<% include TrackBacks %>
 		<% end_if %>
 		
 		$PageComments

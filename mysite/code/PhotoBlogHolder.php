@@ -12,6 +12,10 @@ class PhotoBlogHolder extends BlogHolder {
 	private static $db = array(
 	);
 	
+	private static $has_one = array(
+		'Owner' => 'Author'
+	);
+	
 	static $default_parent = 'BlogTree';
 	
 	static $description = "A Photo Blog Holder";
@@ -30,6 +34,16 @@ class PhotoBlogHolder extends BlogHolder {
 		$fields->removeFieldFromTab('Root.Main', 'TrackBacksEnabled');
 		
 		return $fields;
+	}
+	
+	function blogOwners($sort = array('FirstName'=>'ASC','Surname'=>'ASC'), $direction = null) {
+		
+		$members = Author::get(); 
+		$members->sort($sort);
+		
+		$this->extend('extendBlogOwners', $members);
+		
+		return $members;
 	}
 	
 }

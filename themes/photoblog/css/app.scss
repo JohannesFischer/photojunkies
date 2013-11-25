@@ -1,8 +1,9 @@
 /*
- * LESS Vars
+ * SASS Vars
  * --------------------------------------------------------------- */
 
 $default: #f938ab;
+$backgroundFooter: #111;
 
 @mixin linear-gradient($color1, $color2) {
 	background: linear-gradient(to bottom, $color1, $color2);
@@ -15,6 +16,16 @@ $default: #f938ab;
     transition: $property $duration $timing;
 }
 
+/* -----------------------------------------
+   Foundation reset
+----------------------------------------- */
+
+fieldset {
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
 /*
  * Base Styling
  * --------------------------------------------------------------- */
@@ -22,6 +33,7 @@ $default: #f938ab;
 body {
 	background: #191919;
 	background: linear-gradient(to bottom, #191919, #303030);
+	color: #333;
 }
 .contain-to-grid .top-bar {
 	margin-bottom: 0;
@@ -38,7 +50,7 @@ h2,
 }
 
 .blogentry-preview h2 {
-	font-size: 25px;
+	font-size: 1.8em;
 }
 
 /*
@@ -48,7 +60,7 @@ h2,
 .icon {
 	background-position: 0 50%;
 	background-repeat: no-repeat;
-	padding-left: 20px;
+	padding-left: 1.5em;
 }
 .comments {
 	background-image: url(../images/icons/comment_alt2_fill_14x16.png);
@@ -61,6 +73,25 @@ h2,
 }
 .tags {
 	background-image: url(../images/icons/tag_fill_16x16.png);
+}
+
+/*
+ * Header / Navigation
+ * --------------------------------------------------------------- */
+
+.contain-to-grid {
+	&,
+	li ul.dropdown {
+		background: rgba(0, 0, 0, .8);
+	}
+	
+	& .top-bar,
+	& ul.title-area,
+	.top-bar-section ul,
+	.top-bar-section ul li a,
+	.top-bar-section li a:not(.button) {
+		background: transparent;
+	}
 }
 
 /*
@@ -195,12 +226,27 @@ h2,
 	}
 }
 
+.entry-nav {
+	margin-bottom: 2em;
+	
+	a {
+		background: $backgroundFooter;
+		display: block;
+		height: 30px;
+		line-height: 30px;
+		padding: 0 1em;
+		white-space: nowrap;
+	}
+}
+
 /*
  * Footer
  * --------------------------------------------------------------- */
 
 footer {
-	background: #111;
+	background: $backgroundFooter;
+	color: #828282;
+	
 	.large-6 {
 		margin-bottom: 20px;
 		margin-top: 20px;
@@ -214,22 +260,30 @@ footer {
 }
 
 /*
- * Bullets
+ * Orbit
  * --------------------------------------------------------------- */
 
-.orbit-bullets {
-	li {
-		background: #aaa;
-		border: 0;
-		padding: 2px;
-		text-shadow: 2px  2px 2px rgba(0, 0, 0, .5);
-		@include transition;
-		&:hover,
-		&.active {
-			background: #333;
-		}
-		&:hover {
-			cursor: pointer;
+.orbit-container {
+	background: transparent;
+	min-height: 300px;
+	
+	.orbit-bullets {
+		
+		li {
+			background: #aaa;
+			border: 0;
+			padding: 2px;
+			text-shadow: 2px  2px 2px rgba(0, 0, 0, .5);
+			@include transition;
+			
+			&:hover,
+			&.active {
+				background: #333;
+			}
+			
+			&:hover {
+				cursor: pointer;
+			}
 		}
 	}
 }

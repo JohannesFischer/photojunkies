@@ -2,9 +2,11 @@
 <html lang="de">
 <head>
     <% base_tag %>
-    <title>CCC Login</title>
+    <title>SS Login</title>
     $MetaTags(false)
     <link rel="shortcut icon" href="/favicon.ico">
+	<% require themedCSS(foundation/normalize) %>
+	<% require themedCSS(foundation/foundation.min) %>
     <% require themedCSS(cmslogin) %>
 </head>
 <body class="LoginPage">
@@ -20,17 +22,13 @@
     </div>
 	
 	<script>
-	jQuery(document).ready(function() {
-		if (jQuery('#CMSLogin')) {
-			var label = jQuery('#Email label');
-			var input = jQuery('#Email input')
-			input.attr('placeholder', label.text());
-			
-			var label = jQuery('#Password label');
-			var input = jQuery('#Password input')
-			input.attr('placeholder', label.text());
-		}
-	});
+		// get label text and set as placeholder
+		// email
+		var label = document.getElementById('Email').getElementsByTagName('label')[0];
+		document.getElementById('MemberLoginForm_LoginForm_Email').placeholder = label.innerHTML;
+		// password
+		var label = document.getElementById('Password').getElementsByTagName('label')[0];
+		document.getElementById('MemberLoginForm_LoginForm_Password').placeholder = label.innerHTML;
 	</script>
 	
 </body>

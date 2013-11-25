@@ -1,12 +1,21 @@
 /*
- * LESS Vars
+ * SASS Vars
  * --------------------------------------------------------------- */
+/* -----------------------------------------
+   Foundation reset
+----------------------------------------- */
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0; }
+
 /*
  * Base Styling
  * --------------------------------------------------------------- */
 body {
   background: #191919;
-  background: linear-gradient(to bottom, #191919, #303030); }
+  background: linear-gradient(to bottom, #191919, #303030);
+  color: #333; }
 
 .contain-to-grid .top-bar {
   margin-bottom: 0; }
@@ -20,7 +29,7 @@ h2,
   font-family: Numans, sans-serif; }
 
 .blogentry-preview h2 {
-  font-size: 25px; }
+  font-size: 1.8em; }
 
 /*
  * Icons
@@ -28,7 +37,7 @@ h2,
 .icon {
   background-position: 0 50%;
   background-repeat: no-repeat;
-  padding-left: 20px; }
+  padding-left: 1.5em; }
 
 .comments {
   background-image: url(../images/icons/comment_alt2_fill_14x16.png); }
@@ -41,6 +50,18 @@ h2,
 
 .tags {
   background-image: url(../images/icons/tag_fill_16x16.png); }
+
+/*
+ * Header / Navigation
+ * --------------------------------------------------------------- */
+.contain-to-grid,
+.contain-to-grid li ul.dropdown {
+  background: rgba(0, 0, 0, 0.8); }
+.contain-to-grid .top-bar, .contain-to-grid ul.title-area,
+.contain-to-grid .top-bar-section ul,
+.contain-to-grid .top-bar-section ul li a,
+.contain-to-grid .top-bar-section li a:not(.button) {
+  background: transparent; }
 
 /*
  * Page
@@ -149,11 +170,22 @@ h2,
     padding: 5px 0;
     text-align: center; }
 
+.entry-nav {
+  margin-bottom: 2em; }
+  .entry-nav a {
+    background: #111111;
+    display: block;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 1em;
+    white-space: nowrap; }
+
 /*
  * Footer
  * --------------------------------------------------------------- */
 footer {
-  background: #111; }
+  background: #111111;
+  color: #828282; }
   footer .large-6 {
     margin-bottom: 20px;
     margin-top: 20px; }
@@ -163,21 +195,24 @@ footer {
       margin: 10px 0; }
 
 /*
- * Bullets
+ * Orbit
  * --------------------------------------------------------------- */
-.orbit-bullets li {
-  background: #aaa;
-  border: 0;
-  padding: 2px;
-  text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
-  -moz-transition: all 2s ease;
-  -webkit-transition: all 2s ease;
-  -o-transition: all 2s ease;
-  transition: all 2s ease; }
-  .orbit-bullets li:hover, .orbit-bullets li.active {
-    background: #333; }
-  .orbit-bullets li:hover {
-    cursor: pointer; }
+.orbit-container {
+  background: transparent;
+  min-height: 300px; }
+  .orbit-container .orbit-bullets li {
+    background: #aaa;
+    border: 0;
+    padding: 2px;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+    -moz-transition: all 2s ease;
+    -webkit-transition: all 2s ease;
+    -o-transition: all 2s ease;
+    transition: all 2s ease; }
+    .orbit-container .orbit-bullets li:hover, .orbit-container .orbit-bullets li.active {
+      background: #333; }
+    .orbit-container .orbit-bullets li:hover {
+      cursor: pointer; }
 
 /*
  * Comments

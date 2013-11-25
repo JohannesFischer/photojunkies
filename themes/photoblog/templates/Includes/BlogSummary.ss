@@ -15,7 +15,7 @@
 					<h2 class="postTitle">
 						<a href="$Link" title="<% _t('VIEWFULL', 'View full post -') %> $Title">$MenuTitle</a>
 					</h2>
-					<p class="blog-summary-date">$Author.XML, $Date.Format('M d Y')</p>
+					<p class="blog-summary-date">$Author.XML, $Date.Format('d/m/Y')</p>
 				</div>
 				<p class="first-paragraph hide-on-small-screens">$Content.FirstParagraph</p>
 				<!--<p class="icon comments-white">

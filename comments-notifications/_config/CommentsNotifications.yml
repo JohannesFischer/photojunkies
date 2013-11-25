@@ -1,9 +1,9 @@
 CommentsNotifications:
-  recipient: 'SiteConfig'
+  recipient: 'Admin'
   only_unmoderated: false
   email_template: 'CommentNotificationsEmail'
-  email_sender: 'noreply@silverstripe.org'
-  email_subject: 'New comment notification'
+  email_sender: 'noreply@photojunkies.de'
+  email_subject: 'New comment on Photojunkies'
 CommentingController:
   extensions:
     - 'CommentingControllerNotificationsExtension'

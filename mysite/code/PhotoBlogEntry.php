@@ -10,9 +10,9 @@ class PhotoBlogEntry extends BlogEntry {
 	
 	private static $default_parent = 'PhotoBlogHolder';
 	
-	static $can_be_root = true;
+	static $can_be_root = false;
 	
-	static $description = "An individual photo blog entry";
+	static $description = 'An individual photo blog entry';
 	
 	static $singular_name = 'Photo Blog Entry Page';
 	
@@ -33,14 +33,19 @@ class PhotoBlogEntry extends BlogEntry {
 		$fields->removeFieldFromTab('Root.Main', 'Author');
 		
 		$config  = GridFieldConfig_RelationEditor::create();
-		$gridField = new GridField('Images', 'Images', $this->Images(), $config);		
-		$fields->addFieldToTab('Root.Images', $gridField);
+        $config->addComponent(new GridFieldSortableRows('SortOrder'));
+		$fields->addFieldToTab('Root.Images', new GridField('Images', 'Images', $this->Images(), $config));
 		
 		return $fields;
 	}
 	
 	public function onBeforeWrite() {
-		// @todo add space when there's none after a comma
+		// add space when there's none after a comma
+		if ($this->Tags) {
+			$tags = strtolower($this->Tags);
+			$this->Tags = preg_replace('/,(?!\s)/', ', ', $tags);
+		}
+		
 		if ( ! $this->Author) {
 			$p = $this->Parent();
 			$author = Member::get()->byId($p->OwnerID);
@@ -67,6 +72,32 @@ class PhotoBlogEntry_Controller extends BlogEntry_Controller {
 	
 	public function HasMoreThanTwoImages() {
 		return $this->Images()->Count();
+	}
+	
+	private function getPreviousID($entries) {
+		while(key($entries) != $this->ID) next($entries);		
+		prev($entries);
+		return key($entries);
+	}
+	
+	public function nextEntry() {
+		$entries = PhotoBlogEntry::get()->filter('ParentID', $this->ParentID)->sort('Created DESC')->map('ID')->toArray();
+		
+		if ($id = $this->getPreviousID($entries)) {		
+			return PhotoBlogEntry::get()->byID($id);
+		}
+		
+		return false;
+	}
+	
+	public function previousEntry() {
+		$entries = PhotoBlogEntry::get()->filter('ParentID', $this->ParentID)->sort('Created ASC')->map('ID')->toArray();
+		
+		if ($id = $this->getPreviousID($entries)) {		
+			return PhotoBlogEntry::get()->byID($id);
+		}
+		
+		return false;
 	}
 	
 }

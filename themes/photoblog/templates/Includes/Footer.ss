@@ -1,10 +1,18 @@
 <footer role="contentinfo">
 	<div class="row">
 		<div class="columns large-6">
-			<a href="$BaseHref" rel="home">$SiteConfig.Title</a>
+			<h5>About</h5>
+			<p>Lorem Ipsum</p>
 		</div>
 		<div class="columns large-6">
-			<a href="$BaseHref" rel="home">$SiteConfig.Title</a>
+			<h5>Tags</h5>
+			<ul>
+				<% loop getTags(5) %>
+					<li>
+						<a href="$Link">$Tag</a>
+					</li>
+				<% end_loop %>
+			</ul>
 		</div>
 	</div>
 	<div class="copy">

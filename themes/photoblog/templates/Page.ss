@@ -25,6 +25,25 @@
 		$Layout
 	</div>
 	
+	<% if ClassName == PhotoBlogEntry %>
+		<div class="row entry-nav">
+			<% if nextEntry %>
+				<div class="large-4 small-6 columns">
+					<% with nextEntry %>
+						<a href="$Link">&larr; $Title</a>
+					<% end_with %>
+				</div>
+			<% end_if %>
+			<% if previousEntry %>
+				<div class="large-4 <% if not nextEntry%>large-offset-8 <% end_if %>small-6 columns text-right">
+					<% with previousEntry %>
+						<a href="$Link">$Title &rarr;</a>
+					<% end_with %>
+				</div>
+			<% end_if %>
+		</div>
+	<% end_if %>
+	
 	<% include Footer %>
 
 	<script src="{$ThemeDir}/javascript/jquery.js"></script>
