@@ -8,6 +8,7 @@ class Page extends SiteTree {
 	);
 	
 }
+
 class Page_Controller extends ContentController {
 
 	public $FontFamily;
@@ -49,26 +50,29 @@ class Page_Controller extends ContentController {
 	public function getTags($limit = 10) {
 		$entries = PhotoBlogEntry::get();
 		
-		$output = new ArrayList();
-		$b = array();
-		
-		foreach ($entries as $entry) {
-			$tags = preg_split(" *, *", trim($entry->Tags));
-			if ($tags[0] == '') continue;
-			
-			$link = $entry->getParent() ? $entry->getParent()->Link('tag') : '';
-			foreach($tags as $tag) {
-				if (in_array($tag, $b)) continue;
-				$b[] = $tag;
-				
-				$output->push(new ArrayData(array(
-					'Tag' => Convert::raw2xml($tag),
-					'Link' => $link . '/' . urlencode($tag),
-					'URLTag' => urlencode($tag)
-				)));
-			}
-		}
-		
+		//$output = new ArrayList();
+		//$b = array();
+		//
+		//foreach ($entries as $entry) {
+		//	$tags = preg_split(" *, *", trim($entry->Tags));
+		//	if ($tags[0] == '') continue;
+		//	
+		//	$link = $entry->getParent() ? $entry->getParent()->Link('tag') : '';
+		//	foreach($tags as $tag) {
+		//		if (in_array($tag, $b)) continue;
+		//		$b[] = $tag;
+		//		
+		//		$output->push(new ArrayData(array(
+		//			'Tag' => Convert::raw2xml($tag),
+		//			'Link' => $link . '/' . urlencode($tag),
+		//			'URLTag' => urlencode($tag)
+		//		)));
+		//	}
+		//}
+		//
+		//return $output->limit($limit);
+	
+		$output = TagCloud::TagsCollection();
 		return $output->limit($limit);
 	}
 	

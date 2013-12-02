@@ -189,6 +189,15 @@ footer {
   footer .large-6 {
     margin-bottom: 20px;
     margin-top: 20px; }
+  footer .tag-list {
+    list-style: none; }
+    footer .tag-list li {
+      float: left;
+      margin: 0 4px 0 0; }
+      footer .tag-list li:after {
+        content: ','; }
+      footer .tag-list li:last-of-type:after {
+        content: ''; }
   footer .copy {
     background: #000; }
     footer .copy p {

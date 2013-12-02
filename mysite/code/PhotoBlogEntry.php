@@ -5,8 +5,6 @@
  * @package photoblog
  */
 class PhotoBlogEntry extends BlogEntry {
-	private static $db = array(
-	);
 	
 	private static $default_parent = 'PhotoBlogHolder';
 	

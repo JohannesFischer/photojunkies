@@ -251,8 +251,24 @@ footer {
 		margin-bottom: 20px;
 		margin-top: 20px;
 	}
+	.tag-list {
+		list-style: none;
+		
+		li {
+			float: left;
+			margin: 0 4px 0 0;
+			
+			&:after {
+				content: ',';
+			}
+			&:last-of-type:after {
+				content: '';
+			}
+		}
+	}
 	.copy {
 		background: #000;
+		
 		p {
 			margin: 10px 0;
 		}

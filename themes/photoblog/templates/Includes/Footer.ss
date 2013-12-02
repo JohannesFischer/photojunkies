@@ -6,8 +6,8 @@
 		</div>
 		<div class="columns large-6">
 			<h5>Tags</h5>
-			<ul>
-				<% loop getTags(5) %>
+			<ul class="tag-list">
+				<% loop getTags(10) %>
 					<li>
 						<a href="$Link">$Tag</a>
 					</li>
