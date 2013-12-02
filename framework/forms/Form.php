@@ -245,6 +245,8 @@ class Form extends RequestHandler {
 		if(isset($errorInfo['message']) && isset($errorInfo['type'])) {
 			$this->setMessage($errorInfo['message'], $errorInfo['type']);
 		}
+
+		return $this;
 	}
 	
 	/**
@@ -1378,8 +1380,10 @@ class Form extends RequestHandler {
 	}
 
 	public function buttonClicked() {
-		foreach($this->actions as $action) {
-			if($this->buttonClickedFunc == $action->actionName()) return $action;
+		foreach($this->actions->dataFields() as $action) {
+			if($action->hasMethod('actionname') && $this->buttonClickedFunc == $action->actionName()) {
+				return $action;
+			}
 		}
 	}
 
@@ -1477,14 +1481,12 @@ class Form extends RequestHandler {
 	 *				names delimited by a single space.
 	 */
 	public function addExtraClass($class) {
-		$classes = explode(' ', $class);
-		
+		//split at white space
+		$classes = preg_split('/\s+/', $class);
 		foreach($classes as $class) {
-			$value = trim($class);
-			
-			$this->extraClasses[] = $value;
+			//add classes one by one
+			$this->extraClasses[$class] = $class;
 		}
-
 		return $this;
 	}
 
@@ -1495,8 +1497,12 @@ class Form extends RequestHandler {
 	 * @param string $class
 	 */
 	public function removeExtraClass($class) {
-		$classes = explode(' ', $class);
-		$this->extraClasses = array_diff($this->extraClasses, $classes);
+		//split at white space
+		$classes = preg_split('/\s+/', $class);
+		foreach ($classes as $class) {
+			//unset one by one
+			unset($this->extraClasses[$class]);
+		}
 		return $this;
 	}
 	

@@ -74,7 +74,10 @@ class CmsUiContext extends BehatContext
 
 	protected function getCmsTabsElement()
 	{
-		$this->getSession()->wait(5000, "window.jQuery('.cms-content-header-tabs').size() > 0");
+		$this->getSession()->wait(
+			5000, 
+			"window.jQuery && window.jQuery('.cms-content-header-tabs').size() > 0"
+		);
 
 		$page = $this->getSession()->getPage();
 		$cms_content_header_tabs = $page->find('css', '.cms-content-header-tabs');
@@ -87,7 +90,7 @@ class CmsUiContext extends BehatContext
 	{
 		$this->getSession()->wait(
 			5000, 
-			"window.jQuery('.cms-content-toolbar').size() > 0 "
+			"window.jQuery && window.jQuery('.cms-content-toolbar').size() > 0 "
 			. "&& window.jQuery('.cms-content-toolbar').children().size() > 0"
 		);
 
@@ -100,7 +103,10 @@ class CmsUiContext extends BehatContext
 
 	protected function getCmsTreeElement()
 	{
-		$this->getSession()->wait(5000, "window.jQuery('.cms-tree').size() > 0");
+		$this->getSession()->wait(
+			5000, 
+			"window.jQuery && window.jQuery('.cms-tree').size() > 0"
+		);
 
 		$page = $this->getSession()->getPage();
 		$cms_tree_element = $page->find('css', '.cms-tree');
@@ -140,7 +146,7 @@ class CmsUiContext extends BehatContext
 	}
 
 	/**
-	 * @When /^I should see "([^"]*)" in CMS Tree$/
+	 * @When /^I should see "([^"]*)" in the tree$/
 	 */
 	public function stepIShouldSeeInCmsTree($text)
 	{
@@ -151,7 +157,7 @@ class CmsUiContext extends BehatContext
 	}
 
 	/**
-	 * @When /^I should not see "([^"]*)" in CMS Tree$/
+	 * @When /^I should not see "([^"]*)" in the tree$/
 	 */
 	public function stepIShouldNotSeeInCmsTree($text)
 	{
@@ -159,6 +165,17 @@ class CmsUiContext extends BehatContext
 
 		$element = $cms_tree_element->find('named', array('content', "'$text'"));
 		assertNull($element, sprintf('%s found', $text));
+	}
+
+	/**
+	 * @When /^I click on "([^"]*)" in the tree$/
+	 */
+	public function stepIClickOnElementInTheTree($text)
+	{
+		$treeEl = $this->getCmsTreeElement();
+		$treeNode = $treeEl->findLink($text);
+		assertNotNull($treeNode, sprintf('%s not found', $text));
+		$treeNode->click();
 	}
 
 	/**
@@ -182,7 +199,10 @@ class CmsUiContext extends BehatContext
 	 */
 	public function iClickTheCmsTab($tab)
 	{
-		$this->getSession()->wait(5000, "window.jQuery('.ui-tabs-nav').size() > 0");
+		$this->getSession()->wait(
+			5000, 
+			"window.jQuery && window.jQuery('.ui-tabs-nav').size() > 0"
+		);
 
 		$page = $this->getSession()->getPage();
 		$tabsets = $page->findAll('css', '.ui-tabs-nav');
@@ -272,14 +292,16 @@ class CmsUiContext extends BehatContext
 	public function iWaitForThePreviewToLoad() 
 	{
 		$driver = $this->getSession()->getDriver();
+		// TODO Remove once we have native support in Mink and php-webdriver,
+		// see https://groups.google.com/forum/#!topic/behat/QNhOuGHKEWI
+		$origWindowName = $driver->getWebDriverSession()->window_handle();
+
 		$driver->switchToIFrame('cms-preview-iframe');
-		
 		$this->getSession()->wait(
 			5000, 
-			"!jQuery('iframe[name=cms-preview-iframe]').hasClass('loading')"
+			"window.jQuery && !window.jQuery('iframe[name=cms-preview-iframe]').hasClass('loading')"
 		);
-
-		$driver->switchToWindow();   
+		$driver->switchToWindow($origWindowName);   
 	}
 
 	/**
@@ -327,7 +349,10 @@ class CmsUiContext extends BehatContext
 		$field = $this->fixStepArgument($field);
 		$value = $this->fixStepArgument($value);
 
-		$nativeField = $this->getSession()->getPage()->findField($field);
+		$nativeField = $this->getSession()->getPage()->find(
+			'named', 
+			array('select', $this->getSession()->getSelectorsHandler()->xpathLiteral($field))
+		);
 		if($nativeField) {
 			$nativeField->selectOption($value);
 			return;
@@ -338,7 +363,9 @@ class CmsUiContext extends BehatContext
 
 		// Find by label
 		$formField = $this->getSession()->getPage()->findField($field);
-		if($formField) $formFields[] = $formField;
+		if($formField && $formField->getTagName() == 'select') {
+			$formFields[] = $formField;
+		}
 
 		// Fall back to finding by title (for dropdowns without a label)
 		if(!$formFields) {
@@ -354,6 +381,15 @@ class CmsUiContext extends BehatContext
 		// Find by name (incl. hidden fields)
 		if(!$formFields) {
 			$formFields = $this->getSession()->getPage()->findAll('xpath', "//*[@name='$field']");
+		}
+
+		// Find by label
+		if(!$formFields) {
+			$label = $this->getSession()->getPage()->find('xpath', "//label[.='$field']");
+			if($label && $for = $label->getAttribute('for')) {
+				$formField = $this->getSession()->getPage()->find('xpath', "//*[@id='$for']");
+				if($formField) $formFields[] = $formField;
+			}
 		}
 
 		assertGreaterThan(0, count($formFields), sprintf(
@@ -380,7 +416,8 @@ class CmsUiContext extends BehatContext
 			// wait for ajax dropdown to load
 			$this->getSession()->wait(
 				5000,
-				"jQuery('#" . $container->getAttribute('id') . " .treedropdownfield-panel li').length > 0"
+				"window.jQuery && "
+				. "window.jQuery('#" . $container->getAttribute('id') . " .treedropdownfield-panel li').length > 0"
 			); 
 		} else {
 			// wait for dropdown overlay to appear (might be animated)

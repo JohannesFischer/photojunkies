@@ -22,6 +22,8 @@ class ContentController extends Controller {
 
 	protected $dataRecord;
 
+	private static $extensions = array('OldPageRedirector');
+
 	private static $allowed_actions = array(
 		'successfullyinstalled',
 		'deleteinstallfiles', // secured through custom code
@@ -163,35 +165,11 @@ class ContentController extends Controller {
 			// See ModelAdController->getNestedController() for similar logic
 			if(class_exists('Translatable')) Translatable::disable_locale_filter();
 			// look for a page with this URLSegment
-			$child = $this->model->SiteTree->where(sprintf (
-				"\"ParentID\" = %s AND \"URLSegment\" = '%s'", $this->ID, Convert::raw2sql(rawurlencode($action))
-			))->First();
+			$child = $this->model->SiteTree->filter(array(
+				'ParentID' => $this->ID,
+				'URLSegment' => rawurlencode($action)
+			))->first();
 			if(class_exists('Translatable')) Translatable::enable_locale_filter();
-			
-			// if we can't find a page with this URLSegment try to find one that used to have 
-			// that URLSegment but changed. See ModelAsController->getNestedController() for similiar logic.
-			if(!$child){
-				$child = ModelAsController::find_old_page($action,$this->ID);
-				if($child){
-					$response = new SS_HTTPResponse();
-					$params = $request->getVars();
-					if(isset($params['url'])) unset($params['url']);
-					$response->redirect(
-						Controller::join_links(
-							$child->Link(
-								Controller::join_links(
-									$request->param('ID'), // 'ID' is the new 'URLSegment', everything shifts up one position
-									$request->param('OtherID')
-								)
-							),
-							// Needs to be in separate join links to avoid urlencoding
-							($params) ? '?' . http_build_query($params) : null
-						),
-						301
-					);
-					return $response;
-				}
-			}
 		}
 		
 		// we found a page with this URLSegment.
@@ -258,7 +236,10 @@ class ContentController extends Controller {
 	 */
 	public function getMenu($level = 1) {
 		if($level == 1) {
-			$result = DataObject::get("SiteTree", "\"ShowInMenus\" = 1 AND \"ParentID\" = 0");
+			$result = SiteTree::get()->filter(array(
+				"ShowInMenus" => 1,
+				"ParentID" => 0
+			));
 
 		} else {
 			$parent = $this->data();
@@ -399,7 +380,7 @@ HTML;
 			$this->httpError(410);
 		}
 		// The manifest should be built by now, so it's safe to publish the 404 page
-		$fourohfour = Versioned::get_one_by_stage('ErrorPage', 'Stage', '"ErrorCode" = 404');
+		$fourohfour = Versioned::get_one_by_stage('ErrorPage', 'Stage', '"ErrorPage"."ErrorCode" = 404');
 		if($fourohfour) {
 			$fourohfour->write();
 			$fourohfour->publish("Stage", "Live");

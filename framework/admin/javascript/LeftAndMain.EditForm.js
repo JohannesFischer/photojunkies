@@ -93,7 +93,7 @@
 					var firstTabWithErrors = this.find('.message.validation:first').closest('.tab');
 					$('.cms-container').clearCurrentTabState(); // clear state to avoid override later on
 					this.redraw();
-					firstTabWithErrors.closest('.cms-tabset').tabs('select', firstTabWithErrors.attr('id'));
+					firstTabWithErrors.closest('.ss-tabset').tabs('select', firstTabWithErrors.attr('id'));
 				}
 			
 				this._super();
@@ -200,6 +200,15 @@
 			 * Function: onclick
 			 */
 			onclick: function(e) {
+				// Confirmation on delete. 
+				if(
+					this.hasClass('gridfield-button-delete')
+					&& !confirm(ss.i18n._t('TABLEFIELD.DELETECONFIRMMESSAGE'))
+				) {
+					e.preventDefault();
+					return false;
+				}
+
 				if(!this.is(':disabled')) {
 					this.parents('form').trigger('submit', [this]);
 				}

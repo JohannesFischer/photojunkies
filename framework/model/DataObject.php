@@ -190,6 +190,11 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
 	
 	/**
 	 * Set whether DataObjects should be validated before they are written.
+	 * 
+	 * Caution: Validation can contain safeguards against invalid/malicious data,
+	 * and check permission levels (e.g. on {@link Group}). Therefore it is recommended
+	 * to only disable validation for very specific use cases.
+	 * 
 	 * @param $enable bool
 	 * @see DataObject::validate()
 	 * @deprecated 3.2 Use the "DataObject.validation_enabled" config setting instead
@@ -634,7 +639,7 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
 	 * @return boolean true if this object exists
 	 */
 	public function exists() {
-		return ($this->record && $this->record['ID'] > 0);
+		return (isset($this->record['ID']) && $this->record['ID'] > 0);
 	}
 
 	/**
@@ -1527,15 +1532,24 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
 		if($fieldPos = strpos($remoteClass, '.')) {
 			return substr($remoteClass, $fieldPos + 1) . 'ID';
 		}
-		
-		$remoteRelations = array_flip(Config::inst()->get($remoteClass, 'has_one'));
+
+		$remoteRelations = Config::inst()->get($remoteClass, 'has_one');
+		if(!is_array($remoteRelations)) {
+			$remoteRelations = array();
+		}
+		$remoteRelations = array_flip($remoteRelations);
 		
 		// look for remote has_one joins on this class or any parent classes
 		foreach(array_reverse(ClassInfo::ancestry($this)) as $class) {
 			if(array_key_exists($class, $remoteRelations)) return $remoteRelations[$class] . 'ID';
 		}
-		
-		return 'ParentID';
+
+		$message = "No has_one found on class '$remoteClass'";
+		if($type == 'has_many') {
+			// include a hint for missing has_many that is missing a has_one
+			$message .= ", the has_many relation from '$this->class' to '$remoteClass' requires a has_one on '$remoteClass'";
+		}
+		throw new Exception($message);
 	}
 	
 	/**
@@ -2776,7 +2790,7 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
 	 * @param string|array $limit A limit expression to be inserted into the LIMIT clause.
 	 * @param string $containerClass The container class to return the results in.
 	 *
-	 * @return mixed The objects matching the filter, in the class specified by $containerClass
+	 * @return DataList
 	 */
 	public static function get($callerClass = null, $filter = "", $sort = "", $join = "", $limit = null,
 			$containerClass = 'DataList') {

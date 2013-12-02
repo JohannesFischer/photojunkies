@@ -12,7 +12,11 @@ Please register a free translator account to get started, even if you just feel 
 
 We provide a GUI for translations through [transifex.com](http://transifex.com).  If you don't have an account yet, please follow the links there to sign up.  Select a project from the [list of translatable modules](https://www.transifex.com/accounts/profile/silverstripe/) and start translating online!
 
-For all modules listed there, we automatically import new master strings as they get committed to the various codebases, so you're always translating on the latest and greatest version.
+For all modules listed there, we automatically import new master strings 
+as they get committed to the various codebases (via a nightly task), 
+so you're always translating on the latest and greatest version.
+You can check the last successful push of the translation master strings in our 
+[public continuous integration server](http://teamcity.silverstripe.com/viewType.html?buildTypeId=bt112) (select "log in as guest").
 
 ## FAQ
 
@@ -61,14 +65,11 @@ and avoid the change propagating to an older SilverStripe version.
 
 ### How do I change my interface language?
 
-Once you've logged into the CMS, you should see a "profile"-link on the lower right corner (direct link: http://www.site.com/admin/myprofile). You can set the "interface language" from a dropdown which automatically includes all found translations (based on the files in the `/lang` folders).
+Once you've logged into the CMS, you should see the text "Hi <your name>" near the top left, you can click this to edit your profile ([direct link](http://localhost/admin/myprofile/)). You can then set the "interface language" from a dropdown which automatically includes all found translations (based on the files in the `/lang` folders).
 
 ### I've found a piece of untranslatable text
 
 It is entirely possible that we missed certain strings in preparing Silverstripe for translation-support. If you're technically minded, please read [i18n](/topics/i18n) on how to make it translatable. Otherwise just post your findings to the forum.
-
-Note: JavaScript strings can't be translated through the online translation tool at the moment, 
-you'll need to edit the file locally (e.g. cms/javascript/de_DE.js), and submit a patch. 
 
 ### How do I add my own module?
 

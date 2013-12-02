@@ -25,7 +25,7 @@ case you need to drop down to the bare metal.
 ## Generating the Database Schema
 
 The SilverStripe database-schema is generated automatically by visiting the URL.
-`http://<mysite>/dev/build`
+`http://localhost/dev/build`
 
 <div class="notice" markdown='1'>
 Note: You need to be logged in as an administrator to perform this command,
@@ -375,7 +375,7 @@ Data is defined in the static variable $db on each class, in the format:
 	    "FirstName" => "Varchar",
 	    "Surname" => "Varchar",
 	    "Description" => "Text",
-	    "Status" => "Enum('Active, Injured, Retired')",
+	    "Status" => "Enum(array('Active', 'Injured', 'Retired'))",
 	    "Birthday" => "Date"
 	  );
 	}
@@ -393,7 +393,7 @@ the default behavior by making a function called "get`<fieldname>`" or
 	:::php
 	class Player extends DataObject {
 	  private static $db = array(
-	    "Status" => "Enum('Active, Injured, Retired')"
+	    "Status" => "Enum(array('Active', 'Injured', 'Retired'))"
 	  );
 	
 	  // access through $myPlayer->Status
@@ -581,6 +581,35 @@ object type.
 	    "Team" => "Team",
 	    "AnotherTeam" => "Team",
 	  );
+	}
+
+
+### belongs_to
+
+Defines a 1-to-1 relationship with another object, which declares the other end
+of the relationship with a corresponding $has_one. A single database column named
+`<relationship-name>ID` will be created in the object with the $has_one, but
+the $belongs_to by itself will not create a database field. This field will hold
+the ID of the object declaring the $belongs_to.
+
+Similarly with $has_many, dot notation can be used to explicitly specify the $has_one
+which refers to this relation. This is not mandatory unless the relationship would
+be otherwise ambiguous.
+
+	:::php
+
+	class Torso extends DataObject {
+		// HeadID will be generated on the Torso table
+		private static $has_one = array(
+			'Head' => 'Head'
+		);
+	}
+
+	class Head extends DataObject {
+		// No database field created. The '.Head' suffix could be omitted
+		private static $belongs_to = array(
+			'Torso' => 'Torso.Head'
+		);
 	}
 
 

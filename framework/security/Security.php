@@ -280,6 +280,9 @@ class Security extends Controller {
 		$this->response->addHeader('X-Frame-Options', 'SAMEORIGIN');
 	}
 
+	public function index() {
+		return $this->httpError(404); // no-op
+	}
 
 	/**
 	 * Get the login form to process according to the submitted data
@@ -655,9 +658,8 @@ class Security extends Controller {
 				'Form' => $this->ChangePasswordForm()));
 
 		} else {
-			// show an error message if the auto login token is invalid and the
-			// user is not logged in
-			if(!isset($_REQUEST['t']) || !$member) {
+			// Show friendly message if it seems like the user arrived here via password reset feature.
+			if(isset($_REQUEST['m']) || isset($_REQUEST['t'])) {
 				$customisedController = $controller->customise(
 					array('Content' =>
 						_t(
@@ -689,7 +691,7 @@ class Security extends Controller {
 	 * @return Form Returns the lost password form
 	 */
 	public function ChangePasswordForm() {
-        return Object::create('ChangePasswordForm', $this, 'ChangePasswordForm');
+		return Object::create('ChangePasswordForm', $this, 'ChangePasswordForm');
 	}
 
 	/**

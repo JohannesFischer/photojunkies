@@ -219,7 +219,10 @@ class LeftAndMain extends Controller implements PermissionProvider {
 			'Help', 
 			_t('LeftAndMain.HELP', 'Help', 'Menu title'), 
 			$this->config()->help_link,
-			-2
+			-2,
+			array(
+				'target' => '_blank'
+			)
 		);
 
 		// Allow customisation of the access check by a extension
@@ -322,11 +325,11 @@ class LeftAndMain extends Controller implements PermissionProvider {
 				FRAMEWORK_ADMIN_DIR . '/thirdparty/chosen/chosen/chosen.jquery.js',
 				FRAMEWORK_ADMIN_DIR . '/thirdparty/jquery-hoverIntent/jquery.hoverIntent.js',
 				FRAMEWORK_ADMIN_DIR . '/javascript/jquery-changetracker/lib/jquery.changetracker.js',
+				FRAMEWORK_DIR . '/javascript/i18n.js',
 				FRAMEWORK_DIR . '/javascript/TreeDropdownField.js',
 				FRAMEWORK_DIR . '/javascript/DateField.js',
 				FRAMEWORK_DIR . '/javascript/HtmlEditorField.js',
 				FRAMEWORK_DIR . '/javascript/TabSet.js',
-				FRAMEWORK_DIR . '/javascript/i18n.js',
 				FRAMEWORK_ADMIN_DIR . '/javascript/ssui.core.js',
 				FRAMEWORK_DIR . '/javascript/GridField.js',
 			)
@@ -616,6 +619,7 @@ class LeftAndMain extends Controller implements PermissionProvider {
 			if($menuItems) {
 				foreach($menuItems as $code => $menuItem) {
 					// alternate permission checks (in addition to LeftAndMain->canView())
+
 					if(
 						isset($menuItem->controller) 
 						&& $this->hasMethod('alternateMenuDisplayCheck')
@@ -661,9 +665,10 @@ class LeftAndMain extends Controller implements PermissionProvider {
 						$menuIcon = LeftAndMain::menu_icon_for_class($menuItem->controller);
 						if (!empty($menuIcon)) $menuIconStyling .= $menuIcon;
 					}
-					
+
 					$menu->push(new ArrayData(array(
 						"MenuItem" => $menuItem,
+						"AttributesHTML" => $menuItem->getAttributesHTML(),
 						"Title" => Convert::raw2xml($title),
 						"Code" => DBField::create_field('Text', $code),
 						"Link" => $menuItem->url,
@@ -1379,7 +1384,8 @@ class LeftAndMain extends Controller implements PermissionProvider {
 		);
 		$form->addExtraClass('cms-batch-actions nostyle');
 		$form->unsetValidator();
-		
+
+		$this->extend('updateBatchActionsForm', $form);
 		return $form;
 	}
 	

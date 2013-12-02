@@ -52,6 +52,8 @@
 					<% _t('UploadField.FROMCOMPUTER', 'From your computer') %>
 					<input id="$id" name="{$Name}[Uploads][]" class="$extraClass ss-uploadfield-fromcomputer-fileinput" data-config="$configString" type="file"<% if $multiple %> multiple="multiple"<% end_if %> />
 				</label>
+			<% else %>
+				<input id="$id" name="{$Name}[Uploads][]" class="$extraClass ss-uploadfield-fromcomputer-fileinput" data-config="$configString" type="hidden" />
 			<% end_if %>
 
 			<% if $canAttachExisting %>
@@ -67,4 +69,3 @@
 		<div class="clear"><!-- --></div>
 	</div>
 <% end_if %>
-<% if Description %><span class="description">$Description</span><% end_if %>

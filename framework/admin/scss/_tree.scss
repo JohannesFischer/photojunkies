@@ -32,6 +32,10 @@
 			}
 			&.disabled > a {
 				color: #aaaaaa;
+				&:hover {
+					background: transparent;
+					cursor: default;
+				}
 			}
 			&.edit-disabled > a {
 				color: #aaaaaa;
@@ -338,19 +342,19 @@
 			border: 1px solid silver;
 			@include box-shadow(0 0 10px #CCC);
 			&.col-2{
-				width:360px;
+				width:180px * 2; // 2x the size of the original ul
 				li{
 					width:50%;
 				}
 			}
 			&.col-3{
-				width:540px;
+				width:180px * 3; // 3x the size of the original ul
 				li{
 					width:33%;
 				}
 			}
 			li{
-				min-width:180px;
+				min-width:180px; 
 				float:left;
 				a{
 					@include hide-text-overflow;
@@ -438,7 +442,12 @@
 				> a, > a:link{
 					background-color: $color-cms-batchactions-menu-selected-background;
 				}
-			} 
+			}
+			&.disabled {
+				> a > .jstree-checkbox {
+					background-position: -57px -54px;
+				}
+			}
 			&.readonly {
 				color: $color-text-disabled;
 				padding-left: 18px;
@@ -584,6 +593,12 @@ a .jstree-pageicon {
 			> a .jstree-checkbox {
 				display: none;
 			}
+		}
+	}
+
+	&.jstree-loading {
+		li#record-0 > .jstree-icon {
+			background: url(../images/throbber.gif) top left no-repeat;
 		}
 	}
 

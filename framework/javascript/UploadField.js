@@ -48,6 +48,14 @@
 
 			return result;
 		},
+		_onDone: function (result, textStatus, jqXHR, options) {
+			// Mark form as dirty on completion of successful upload
+			if(this.options.changeDetection) {
+				this.element.closest('form').trigger('dirty');
+			}
+
+			$.blueimpUI.fileupload.prototype._onDone.call(this, result, textStatus, jqXHR, options);
+		},
 		_onSend: function (e, data) {
 			//check the array of existing files to see if we are trying to upload a file that already exists
 			var that = this;
@@ -98,6 +106,9 @@
 			this._adjustMaxNumberOfFiles(0);
 		},
 		attach: function(data) {
+			if(this.options.changeDetection) {
+				this.element.closest('form').trigger('dirty');
+			}
 
 			// Handles attachment of already uploaded files, similar to add
 			var self = this,
@@ -151,9 +162,9 @@
 			
 				if(this.is('.readonly,.disabled')) return;
 
-				var fileInput = this.find('input[type=file]');
+				var fileInput = this.find('.ss-uploadfield-fromcomputer-fileinput');
 				var dropZone = this.find('.ss-uploadfield-dropzone');
-				var config = $.parseJSON(fileInput.data('config').replace(/'/g,'"'));				
+				var config = fileInput.data('config');
 				
 				/* Attach classes to dropzone when element can be dropped*/
 				$(document).unbind('dragover');
@@ -181,20 +192,15 @@
 					e.preventDefault(); 
 				});
 
-
-
 				this.setConfig(config);
 				this.fileupload($.extend(true, 
 					{
 						formData: function(form) {
 							var idVal = $(form).find(':input[name=ID]').val();
-							if(!idVal) {
-								idVal = 0;
-							}
-							return [
-								{name: 'SecurityID', value: $(form).find(':input[name=SecurityID]').val()},
-								{name: 'ID', value: idVal}
-							];
+							var data = [{name: 'SecurityID', value: $(form).find(':input[name=SecurityID]').val()}];
+							if(idVal) data.push({name: 'ID', value: idVal});
+							
+							return data;
 						},
 						errorMessages: {
 							// errorMessages for all error codes suggested from the plugin author, some will be overwritten by the config coming from php
@@ -337,11 +343,16 @@
 
 		$('div.ss-upload .ss-uploadfield-item-remove:not(.ui-state-disabled), .ss-uploadfield-item-delete:not(.ui-state-disabled)').entwine({
 			onclick: function(e) {
-				var fileupload = this.closest('div.ss-upload').data('fileupload'), 
+				var field = this.closest('div.ss-upload'),
+					config = field.getConfig('changeDetection'),
+					fileupload = field.data('fileupload'), 
 					item = this.closest('.ss-uploadfield-item'), msg = '';
 				
 				if(this.is('.ss-uploadfield-item-delete')) {
 					if(confirm(ss.i18n._t('UploadField.ConfirmDelete'))) {
+						if(config.changeDetection) {
+							this.closest('form').trigger('dirty');
+						}
 						fileupload._trigger('destroy', e, {
 							context: item,
 							url: this.data('href'),
@@ -351,6 +362,9 @@
 					}
 				} else {
 					// Removed files will be applied to object on save
+					if(config.changeDetection) {
+						this.closest('form').trigger('dirty');
+					}
 					fileupload._trigger('destroy', e, {context: item});	
 				}
 				
@@ -456,7 +470,8 @@
 				if(this.height() === 0) {
 					text = ss.i18n._t('UploadField.Editing', "Editing ...");
 					this.fitHeight();
-					itemInfo.find('.toggle-details-icon').addClass('opened');					
+					this.addClass('opened');
+					itemInfo.find('.toggle-details-icon').addClass('opened');			
 					status.removeClass('ui-state-success-text').removeClass('ui-state-warning-text');
 					iframe.find('#Form_EditForm_action_doEdit').click(function(){
 						itemInfo.find('label .name').text(iframe.find('#Name input').val());
@@ -467,6 +482,7 @@
 
 				} else {
 					this.animate({height: 0}, 500);					
+					this.removeClass('opened');
 					itemInfo.find('.toggle-details-icon').removeClass('opened');
 					$('div.ss-upload .ss-uploadfield-item-edit-all').removeClass('opened').find('.toggle-details-icon').removeClass('opened');
 					if(!this.hasClass('edited')){
@@ -490,9 +506,11 @@
 		});
 		$('div.ss-upload .ss-uploadfield-item-editform iframe').entwine({
 			onmatch: function() {
+				var form = this.closest('.ss-uploadfield-item-editform');
 				// TODO entwine event binding doesn't work for iframes
 				this.load(function() {
-					$(this).parent().removeClass('loading');	
+					$(this).parent().removeClass('loading');
+					if(form.hasClass('opened')) form.fitHeight();
 				});
 				this._super();
 			},

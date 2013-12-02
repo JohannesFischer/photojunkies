@@ -323,7 +323,11 @@ match the hash stored in the users session, the request is discarded.
 You can disable this behaviour through `[api:Form->disableSecurityToken()]`.
 
 It is also recommended to limit form submissions to the intended HTTP verb (mostly `GET` or `POST`)
-through `[api:Form->setStrictFormMethodCheck()]`.
+through `[api:Form->setStrictFormMethodCheck()]`. 
+
+Sometimes you need to handle state-changing HTTP submissions which aren't handled through
+SilverStripe's form system. In this case, you can also check the current HTTP request
+for a valid token through `[api:SecurityToken::checkRequest()]`.
 
 ## Casting user input
 
@@ -428,7 +432,7 @@ a [api:PasswordValidator]:
 	$validator = new PasswordValidator();
 	$validator->minLength(7);
 	$validator->checkHistoricalPasswords(6);
-	$validator->characterStrength('lowercase','uppercase','digits','punctuation');
+	$validator->characterStrength(3, array("lowercase", "uppercase", "digits", "punctuation"));
 	Member::set_password_validator($validator);
 
 In addition, you can tighten password security with the following configuration settings:
