@@ -112,6 +112,24 @@ You can also clear specific Requirements:
 
 Caution: Depending on where you call this command, a Requirement might be *re-included* afterwards.
 
+## Blocking
+
+Requirements can also be explicitly blocked from inclusion,
+which is useful to avoid conflicting JavaScript logic or CSS rules.
+These blocking rules are independent of where the `block()` call is made:
+It applies both for already included requirements, and ones
+included after the `block()` call.
+
+One common example is to block the core `jquery.js` include
+added by various form fields and core controllers,
+and use a newer version in a custom location.
+
+	:::php
+	Requirements::block(THIRDPARTY_DIR . '/jquery/jquery.js');
+
+Caution: The CMS also uses the `Requirements` system, and its operation can be 
+affected by `block()` calls. Avoid this by limiting the scope of 
+your blocking operations, e.g. in `init()` of your controller.
 
 
 ## Inclusion Order
@@ -121,11 +139,15 @@ to change inclusion-order, other than using *Requirements::clear* and rebuilding
 requirements. Caution: Inclusion order is both relevant for CSS and Javascript files in terms of dependencies,
 inheritance and overlays - please be careful when messing with the order of Requirements.
 
-NOTE:
-By default, SilverStripe includes all Javascript files at the bottom of the page body. If this causes problems for you,
+### Javascript placement
+
+By default, SilverStripe includes all Javascript files at the bottom of the page body, unless there's another script already loaded, then, it's inserted before the first `<script>` tag. If this causes problems for you,
 for example if you're using animation that ends up showing everything until the bottom of the page loads, or shows
-buttons before pushing them will actually work, you can change this behaviour through
-the `Requirements.write_js_to_body` configuration setting.
+buttons that rely on Javascript to work, you can change this behaviour. See below.
+
+With the `Requirements.write_js_to_body`, you can configure if Javascript requirements are written to the head (false) or body (true).
+
+With the `Requirements.force_js_to_bottom`, you can force Silverstripe to write the Javascript to the bottom of the page body, even if there is an earlier script tag. For example, when you have asynchronous scripts for Twitter earlier in your body (and stop speedtests from explaining about "scripts above the fold")
 
 ## CMS Requirements
 

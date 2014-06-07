@@ -5,7 +5,7 @@
  * within a HTMLText or HTMLVarchar field when rendered into a template. The API is inspired by and very similar to the
  * [Wordpress implementation](http://codex.wordpress.org/Shortcode_API) of shortcodes.
  * 
- * @see http://doc.silverstripe.org/framework/en/topics/shortcodes
+ * @see http://doc.silverstripe.org/framework/en/reference/shortcodes
  * @package framework
  * @subpackage misc
  */
@@ -229,8 +229,8 @@ class ShortcodeParser {
 					'text' => $match[0][0],
 					's' => $match[0][1],
 					'e' => $match[0][1] + strlen($match[0][0]),
-					'open' =>  @$match['open'][0],
-					'close' => @$match['close'][0],
+					'open' =>  isset($match['open'][0]) ? $match['open'][0] : null,
+					'close' => isset($match['close'][0]) ? $match['close'][0] : null,
 					'attrs' => $attrs,
 					'content' => '',
 					'escaped' => !empty($match['oesc'][0]) || !empty($match['cesc1'][0]) || !empty($match['cesc2'][0])

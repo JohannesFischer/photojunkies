@@ -64,6 +64,15 @@ class Security extends Controller {
 	private static $autologin_enabled = true;
 	
 	/**
+	 * Determine if login username may be remembered between login sessions
+	 * If set to false this will disable autocomplete and prevent username persisting in the session
+	 * 
+	 * @config
+	 * @var bool
+	 */
+	private static $remember_username = true;
+	
+	/**
 	 * Location of word list to use for generating passwords
 	 *
 	 * @config
@@ -549,7 +558,7 @@ class Security extends Controller {
 	public function passwordsent($request) {
 		if(class_exists('SiteTree')) {
 			$tmpPage = new Page();
-			$tmpPage->Title = _t('Security.LOSTPASSWORDHEADER');
+			$tmpPage->Title = _t('Security.LOSTPASSWORDHEADER', 'Lost Password');
 			$tmpPage->URLSegment = 'Security';
 			$tmpPage->ID = -1; // Set the page ID to -1 so we dont get the top level pages as its children
 			$controller = Page_Controller::create($tmpPage);

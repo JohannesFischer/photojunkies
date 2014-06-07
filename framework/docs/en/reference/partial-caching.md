@@ -51,6 +51,19 @@ From a block that shows a summary of the page edits if administrator, nothing if
 	<% cached 'loginblock', LastEdited, CurrentMember.isAdmin %>
 
 
+An additional global key is incorporated in the cache lookup. The default value for this is
+`$CurrentReadingMode, $CurrentUser.ID`, which ensures that the current `[api:Versioned]` state and user ID are
+used. This may be configured by changing the config value of `SSViewer.global_key`. It is also necessary
+to flush the template caching when modifying this config, as this key is cached within the template itself.
+
+For example, to ensure that the cache is configured to respect another variable, and if the current logged in
+user does not influence your template content, you can update this key as below;
+
+	:::yaml
+	SSViewer:
+		global_key: '$CurrentReadingMode, $Locale'
+	
+
 ## Aggregates
 
 Often you want to invalidate a cache when any in a set of objects change, or when the objects in a relationship change.
@@ -61,13 +74,16 @@ For example, if we have a menu, we want that menu to update whenever _any_ page 
 otherwise. By using aggregates, we can do that like this:
 
 	:::ss
-	<% cached 'navigation', List(SiteTree).max(LastEdited) %>
+	<% cached 'navigation', List(SiteTree).max(LastEdited), List(SiteTree).count() %>
 
 If we have a block that shows a list of categories, we can make sure the cache updates every time a category is added or
 edited
 
 	:::ss
-	<% cached 'categorylist', List(Category).max(LastEdited) %>
+	<% cached 'categorylist', List(Category).max(LastEdited), List(Category).count() %>
+
+Note the use of both .max(LastEdited) and .count() - this takes care of both the case where an object has been edited 
+since the cache was last built, and also when an object has been deleted/un-linked since the cache was last built.
 
 We can also calculate aggregates on relationships. A block that shows the current member's favourites needs to update
 whenever the relationship Member::$has_many = array('Favourites' => Favourite') changes.

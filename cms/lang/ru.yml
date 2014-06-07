@@ -5,6 +5,7 @@ ru:
     AppCategoryArchive: Архив
     AppCategoryAudio: Аудио
     AppCategoryDocument: Документ
+    AppCategoryFlash: Flash
     AppCategoryImage: Изображение
     AppCategoryVideo: Видео
     BackToFolder: 'Вернуться к папке'
@@ -44,6 +45,7 @@ ru:
     ColumnDateLastModified: 'Дата последнего изменения'
     ColumnDateLastPublished: 'Дата последней публикации'
     ColumnProblemType: 'Вид проблемы'
+    ColumnURL: URL
     HasBrokenFile: 'содержит поврежденный файл'
     HasBrokenLink: 'содержит нерабочую ссылку'
     HasBrokenLinkAndFile: 'содержит нерабочую ссылку и поврежденный файл'
@@ -81,6 +83,7 @@ ru:
     DESCREMOVED: 'и {count} страниц нижнего уровня'
     DUPLICATED: 'Копия ''{title}'' создана'
     DUPLICATEDWITHCHILDREN: 'Копия ''{title}'' и дочерних элементов создана'
+    EMAIL: Email
     EditTree: 'Редактировать дерево'
     ListFiltered: 'Отфильтрованный список.'
     NEWPAGE: 'Новая {pagetype}'
@@ -114,6 +117,7 @@ ru:
     RESET: Восстановить
   CMSPageAddController:
     ParentMode_child: 'Под другой страницей'
+    ParentMode_top: 'Корневая страница'
     MENUTITLE: 'Добавить страницу'
   CMSPageHistoryController:
     COMPAREMODE: 'Режим сравнения (выбрать две)'
@@ -152,12 +156,16 @@ ru:
     Title: 'Все страницы, включая удаленные'
   CMSSiteTreeFilter_Search:
     Title: 'Все страницы'
+  ContentControl:
+    NOTEWONTBESHOWN: 'Внимание: это сообщение не будет показано посетителям'
   ContentController:
     ARCHIVEDSITE: 'Версия для просмотра'
     ARCHIVEDSITEFROM: 'Архив сайта от'
+    CMS: CMS
     DRAFT: Черновик
     DRAFTSITE: 'Черновой сайт'
     DRAFT_SITE_ACCESS_RESTRICTION: 'Для просмотра чернового или архивного содержимого вам необходимо войти в систему со своим именем пользователя и паролем. <a href="%s">Щелкните здесь, чтобы вернуться на опубликованный сайт.</a>'
+    Email: Email
     INSTALL_SUCCESS: 'Инсталляция прошла успешно!'
     InstallFilesDeleted: 'Инсталляционные файлы были успешно удалены.'
     InstallSecurityWarning: 'Если вы не планируете в ближайшее время переустанавливать CMS, по соображениям безопасности рекомендуется удалить инсталляционные файлы (<em>для этого требуются права доступа администратора ‒ см. выше</em>). Теперь веб-серверу необходим доступ для записи только к папке "assets"; все остальные папки можно защитить от записи. <a href="{link}" style="text-align: center;">Щелкните здесь, чтобы удалить инсталляционные файлы.</a>'
@@ -223,6 +231,7 @@ ru:
     CONTENT_CATEGORY: 'Права доступа к содержимому'
     PERMISSIONS_CATEGORY: 'Роли и права доступа'
   RedirectorPage:
+    DESCRIPTION: 'Перенаправление на другую внутреннюю страницу'
     HASBEENSETUP: 'Страница перенаправления установлена без указания места перенаправления.'
     HEADER: 'Эта страница будет перенаправлять пользователей на другую страницу'
     OTHERURL: 'URL другого сайта'
@@ -259,6 +268,9 @@ ru:
     REPEMPTY: 'Отчет {title} пуст.'
   SilverStripeNavigator:
     ARCHIVED: Архивные
+  SilverStripeNavigatorLink:
+    ShareInstructions: 'Чтобы поделиться ссылкой на эту страницу, скопируйте URL ниже.'
+    ShareLink: 'Поделиться ссылкой'
   SilverStripeNavigatorLinkl:
     CloseLink: Закрыть
   SiteConfig:
@@ -306,6 +318,7 @@ ru:
     DEPENDENT_NOTE: 'С этой страницей связаны следующие зависимые страницы (сюда относятся виртуальные страницы, страницы перенаправления и страницы со ссылками на контент).'
     DESCRIPTION: 'Обычная страница'
     DependtPageColumnLinkType: 'Тип ссылки'
+    DependtPageColumnURL: URL
     EDITANYONE: 'Все, у кого есть доступ к системе (CMS)'
     EDITHEADER: 'Кто может редактировать эту страницу?'
     EDITONLYTHESE: 'Только эти пользователи (выберите из списка)'
@@ -375,6 +388,7 @@ ru:
   URLSegmentField:
     Cancel: Отмена
     Edit: Редактировать
+    OK: ОК
   ViewArchivedEmail_ss:
     CANACCESS: 'Вы можете посмотреть архивную версию сайта по этой ссылке:'
     HAVEASKED: 'Вы запросили просмотр содержимого нашего сайта за'

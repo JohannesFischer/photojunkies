@@ -210,6 +210,25 @@ You can also combine both conjunctive ("AND") and disjunctive ("OR") statements.
 			'Age' => 17,
 		));
 	// WHERE ("LastName" = 'Minnée' AND ("FirstName" = 'Sam' OR "Age" = '17'))
+	
+### Filter with PHP / filterByCallback
+
+It is also possible to filter by a PHP callback, however this will force the 
+data model to fetch all records and loop them in PHP, thus `filter()` or `filterAny()` 
+are to be preferred over `filterByCallback()`.    
+Please note that because `filterByCallback()` has to run in PHP, it will always return 
+an `ArrayList` (even if called on a `DataList`, this however might change in future).    
+The first parameter to the callback is the item, the second parameter is the list itself.    
+The callback will run once for each record, if the callback returns true, this record
+will be added to the list of returned items.    
+The below example will get all Members that have an expired or not encrypted password.
+
+	:::php
+	$membersWithBadPassword = Member::get()->filterByCallback(function($item, $list) {
+	    if ($item->isPasswordExpired() || $item->PasswordEncryption = 'none') {
+	        return true;
+	    }
+	});
 
 ### Exclude
 
@@ -253,7 +272,7 @@ This would be equivalent to a SQL query of
 The where clauses showcased in the previous two sections (filter and exclude)
 specify exact matches by default. However, there are a number of suffixes that
 you can put on field names to change this behavior such as `":StartsWith"`,
-`":EndsWith"`, `":PartialMatch"`, `":GreaterThan"`, `":LessThan"`,
+`":EndsWith"`, `":PartialMatch"`, `":GreaterThan"`, `":GreaterThanOrEqual"`, `":LessThan"`, `":LessThanOrEqual"`,
 `":Negation"`.
 
 Each of these suffixes is represented in the ORM as a subclass of
@@ -271,7 +290,7 @@ start with S, who has logged in  since 1/1/2011.
 
 	:::php
 	$members = Member::get()->filter(array(
-		'FirstName:StartsWith:Not' => 'S'
+		'FirstName:StartsWith:not' => 'S'
 		'LastVisited:GreaterThan' => '2011-01-01'
 	));
 
@@ -701,7 +720,7 @@ an object, not for displaying the objects contained in the relation.
 ## Validation and Constraints
 
 Traditionally, validation in SilverStripe has been mostly handled on the
-controller through [form validation](/topics/form-validation).
+controller through [form validation](/topics/forms#form-validation).
 
 While this is a useful approach, it can lead to data inconsistencies if the
 record is modified outside of the controller and form context.

@@ -1,9 +1,11 @@
 <?php
+
 /**
  * @package framework
  * @subpackage tests
  */
 class CheckboxSetFieldTest extends SapphireTest {
+	
 	protected static $fixture_file = 'CheckboxSetFieldTest.yml';
 
 	protected $extraDataObjects = array(
@@ -122,9 +124,35 @@ class CheckboxSetFieldTest extends SapphireTest {
 			'CheckboxSetField loads data from a manymany relationship in an object through Form->loadDataFrom()'
 		);
 	}
+
+	public function testSavingIntoTextField() {
+		$field = new CheckboxSetField('Content', 'Content', array(
+			'Test' => 'Test',
+			'Another' => 'Another',
+			'Something' => 'Something'
+		));
+		$article = new CheckboxSetFieldTest_Article();
+		$field->setValue(array('Test' => 'Test', 'Another' => 'Another'));
+		$field->saveInto($article);
+		$article->write();
+
+		$dbValue = DB::query(sprintf(
+			'SELECT "Content" FROM "CheckboxSetFieldTest_Article" WHERE "ID" = %s',
+			$article->ID
+		))->value();
+
+		$this->assertEquals('Test,Another', $dbValue);
+	}
+
 }
 
+/**
+ * @package framework
+ * @subpackage tests
+ */
+
 class CheckboxSetFieldTest_Article extends DataObject implements TestOnly {
+
 	private static $db = array(
 		"Content" => "Text",
 	);
@@ -135,7 +163,12 @@ class CheckboxSetFieldTest_Article extends DataObject implements TestOnly {
 	
 }
 
+/**
+ * @package framework
+ * @subpackage tests
+ */
 class CheckboxSetFieldTest_Tag extends DataObject implements TestOnly {
+	
 	private static $belongs_many_many = array(
 		'Articles' => 'CheckboxSetFieldTest_Article'
 	);

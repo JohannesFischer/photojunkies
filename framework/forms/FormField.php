@@ -298,32 +298,33 @@ class FormField extends RequestHandler {
 	}
 	
 	/**
-	 * Add one or more CSS-classes to the formfield-container.
+	 * Add one or more CSS-classes to the formfield-container. Multiple class 
+	 * names should be space delimited.
 	 * 
-	 * @param $class String
+	 * @param string $class
 	 */
 	public function addExtraClass($class) {
-		//split at white space to extract all the classes
 		$classes = preg_split('/\s+/', $class);
+
 		foreach ($classes as $class) {
-			//add each class one by one
-		$this->extraClasses[$class] = $class;
+			$this->extraClasses[$class] = $class;
 		}
+
 		return $this;
 	}
 
 	/**
 	 * Remove one or more CSS-classes from the formfield-container.
 	 * 
-	 * @param $class String
+	 * @param string $class
 	 */
 	public function removeExtraClass($class) {
-		//split at white space to extract all the classes
 		$classes = preg_split('/\s+/', $class);
+
 		foreach ($classes as $class) {
-			//unset each class one by one
 			unset($this->extraClasses[$class]);
 		}
+		
 		return $this;
 	}
 
@@ -357,7 +358,7 @@ class FormField extends RequestHandler {
 	 */
 	public function getAttribute($name) {
 		$attrs = $this->getAttributes();
-		return @$attrs[$name];
+		if(isset($attrs[$name])) return $attrs[$name];
 	}
 	
 	/**
@@ -583,7 +584,7 @@ class FormField extends RequestHandler {
 	 */
 	public function Field($properties = array()) {
 		$obj = ($properties) ? $this->customise($properties) : $this;
-
+		$this->extend('onBeforeRender', $this);
 		return $obj->renderWith($this->getTemplates());
 	}
 

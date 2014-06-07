@@ -18,7 +18,9 @@
  * We also keep the index of the current starting point for lookups. A lookup is a sequence of obj calls -
  * when in a loop or with tag the end result becomes the new scope, but for injections, we throw away the lookup
  * and revert back to the original scope once we've got the value we're after
- * 
+ *
+ * @package framework
+ * @subpackage view
  */
 class SSViewer_Scope {
 	
@@ -45,7 +47,6 @@ class SSViewer_Scope {
 	private $currentIndex = null;
 	
 	private $localIndex;
-
 
 	public function __construct($item, $inheritedScope = null) {
 		$this->item = $item;
@@ -182,6 +183,13 @@ class SSViewer_Scope {
 	}
 }
 
+/**
+ * Defines an extra set of basic methods that can be used in templates
+ * that are not defined on sub-classes of {@link ViewableData}.
+ *
+ * @package framework
+ * @subpackage view
+ */
 class SSViewer_BasicIteratorSupport implements TemplateIteratorProvider {
 
 	protected $iteratorPos;
@@ -345,6 +353,9 @@ class SSViewer_BasicIteratorSupport implements TemplateIteratorProvider {
  * (like $FirstLast etc).
  * 
  * It's separate from SSViewer_Scope to keep that fairly complex code as clean as possible.
+ *
+ * @package framework
+ * @subpackage view
  */
 class SSViewer_DataPresenter extends SSViewer_Scope {
 	
@@ -619,6 +630,14 @@ class SSViewer {
 	 */
 	protected $parser;
 
+	/*
+	 * Default prepended cache key for partial caching
+	 * 
+	 * @var string
+	 * @config
+	 */
+	private static $global_key = '$CurrentReadingMode, $CurrentUser.ID';
+
 	/**
 	 * Create a template from a string instead of a .ss file
 	 * 
@@ -687,6 +706,32 @@ class SSViewer {
 		Deprecation::notice('3.2', 'Use the "SSViewer.theme" and "SSViewer.theme_enabled" config settings instead');
 		return Config::inst()->get('SSViewer', 'theme_enabled') ? Config::inst()->get('SSViewer', 'theme') : null;
 	}
+
+	/**
+	 * Traverses the given the given class context looking for templates with the relevant name.
+	 *
+	 * @param $className string - valid class name
+	 * @param $suffix string
+	 * @param $baseClass string
+	 *
+	 * @return array
+	 */
+	public static function get_templates_by_class($className, $suffix = '', $baseClass = null) {
+		// Figure out the class name from the supplied context.
+		if(!is_string($className) || !class_exists($className)) {
+			throw new InvalidArgumentException('SSViewer::get_templates_by_class() expects a valid class name as ' . 
+				'its first parameter.');
+			return array();
+		}
+		$templates = array();
+		$classes = array_reverse(ClassInfo::ancestry($className));
+		foreach($classes as $class) {
+			$template = $class . $suffix;
+			if(SSViewer::hasTemplate($template)) $templates[] = $template;
+			if($baseClass && $class == $baseClass) break;
+		}
+		return $templates;
+	}
 	
 	/**
 	 * @param string|array $templateList If passed as a string with .ss extension, used as the "main" template.
@@ -697,7 +742,7 @@ class SSViewer {
 	 *  </code>
 	 */
 	public function __construct($templateList, TemplateParser $parser = null) {
-        $this->setParser($parser ?: Injector::inst()->get('SSTemplateParser'));
+		$this->setParser($parser ?: Injector::inst()->get('SSTemplateParser'));
 
 		// flush template manifest cache if requested
 		if (isset($_GET['flush']) && $_GET['flush'] == 'all') {
@@ -1045,12 +1090,34 @@ class SSViewer {
 	/**
 	 * Execute the given template, passing it the given data.
 	 * Used by the <% include %> template tag to process templates.
+	 * 
+	 * @param string $template Template name
+	 * @param mixed $data Data context
+	 * @param array $arguments Additional arguments
+	 * @return string Evaluated result
 	 */
 	public static function execute_template($template, $data, $arguments = null, $scope = null) {
 		$v = new SSViewer($template);
 		$v->includeRequirements(false);
 
 		return $v->process($data, $arguments, $scope);
+	}
+	
+	/**
+	 * Execute the evaluated string, passing it the given data.
+	 * Used by partial caching to evaluate custom cache keys expressed using
+	 * template expressions
+	 * 
+	 * @param string $content Input string
+	 * @param mixed $data Data context
+	 * @param array $arguments Additional arguments
+	 * @return string Evaluated result
+	 */
+	public static function execute_string($content, $data, $arguments = null) {
+		$v = SSViewer::fromString($content);
+		$v->includeRequirements(false);
+		
+		return $v->process($data, $arguments);
 	}
 
 	public function parseTemplateContent($content, $template="") {
@@ -1105,7 +1172,7 @@ class SSViewer_FromString extends SSViewer {
 	protected $content;
 	
 	public function __construct($content, TemplateParser $parser = null) {
-        $this->setParser($parser ?: Injector::inst()->get('SSTemplateParser'));
+		$this->setParser($parser ?: Injector::inst()->get('SSTemplateParser'));
 		$this->content = $content;
 	}
 	

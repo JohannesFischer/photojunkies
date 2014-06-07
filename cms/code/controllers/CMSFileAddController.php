@@ -48,6 +48,8 @@ class CMSFileAddController extends LeftAndMain {
 	}
 
 	/**
+	 * @param null $id Not used.
+	 * @param null $fields Not used.
 	 * @return Form
 	 * @todo what template is used here? AssetAdmin_UploadContent.ss doesn't seem to be used anymore
 	 */
@@ -55,6 +57,10 @@ class CMSFileAddController extends LeftAndMain {
 		Requirements::javascript(FRAMEWORK_DIR . '/javascript/AssetUploadField.js');
 		Requirements::css(FRAMEWORK_DIR . '/css/AssetUploadField.css');
 
+		if($currentPageID = $this->currentPageID()){
+			Session::set("{$this->class}.currentPage", $currentPageID);	
+		}
+		
 		$folder = $this->currentPage();
 
 		$uploadField = UploadField::create('AssetUploadField', '');
@@ -106,6 +112,7 @@ class CMSFileAddController extends LeftAndMain {
 	}
 
 	/**
+	 * @param bool $unlinked
 	 * @return ArrayList
 	 */
 	public function Breadcrumbs($unlinked = false) {

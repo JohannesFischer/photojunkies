@@ -594,13 +594,13 @@ class HtmlEditorField_Toolbar extends RequestHandler {
 		$urlField->dontEscape = true;
 
 		if($file->Type == 'photo') {
-			$filePreview->FieldList()->insertBefore(new TextField(
+			$fields->insertBefore(new TextField(
 				'AltText', 
 				_t('HtmlEditorField.IMAGEALTTEXT', 'Alternative text (alt) - shown if image cannot be displayed'), 
 				$file->Title, 
 				80
 			), 'CaptionText');
-			$filePreview->FieldList()->insertBefore(new TextField(
+			$fields->insertBefore(new TextField(
 				'Title', 
 				_t('HtmlEditorField.IMAGETITLE', 'Title text (tooltip) - for additional information about the image')
 			), 'CaptionText');
@@ -759,6 +759,8 @@ class HtmlEditorField_Toolbar extends RequestHandler {
  * such as file name or the URL.
  *
  * @todo Remove once core has support for remote files
+ * @package forms
+ * @subpackage fields-formattedinput
  */
 class HtmlEditorField_File extends ViewableData {
 
@@ -827,6 +829,13 @@ class HtmlEditorField_File extends ViewableData {
 
 }
 
+/**
+ * Encapsulation of an oembed tag, linking to an external media source.
+ *
+ * @see Oembed
+ * @package forms
+ * @subpackage fields-formattedinput
+ */
 class HtmlEditorField_Embed extends HtmlEditorField_File {
 	protected $oembed;
 
@@ -910,6 +919,12 @@ class HtmlEditorField_Embed extends HtmlEditorField_File {
 	}
 }
 
+/**
+ * Encapsulation of an image tag, linking to an image either internal or external to the site.
+ *
+ * @package forms
+ * @subpackage fields-formattedinput
+ */
 class HtmlEditorField_Image extends HtmlEditorField_File {
 
 	protected $width;

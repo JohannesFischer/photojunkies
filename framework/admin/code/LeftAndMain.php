@@ -698,17 +698,13 @@ class LeftAndMain extends Controller implements PermissionProvider {
 	}
 
 	/**
-	 * Return a list of appropriate templates for this class, with the given suffix
+	 * Return a list of appropriate templates for this class, with the given suffix using 
+	 * {@link SSViewer::get_templates_by_class()}
+	 *
+	 * @return array
 	 */
 	public function getTemplatesWithSuffix($suffix) {
-		$templates = array();
-		$classes = array_reverse(ClassInfo::ancestry($this->class));
-		foreach($classes as $class) {
-			$template = $class . $suffix;
-			if(SSViewer::hasTemplate($template)) $templates[] = $template;
-			if($class == 'LeftAndMain') break;
-		}
-		return $templates;
+		return SSViewer::get_templates_by_class(get_class($this), $suffix, 'LeftAndMain');
 	}
 
 	public function Content() {
@@ -719,9 +715,9 @@ class LeftAndMain extends Controller implements PermissionProvider {
 		$className = $this->stat('tree_class');
 		if($className && $id instanceof $className) {
 			return $id;
-		} else if($id == 'root') {
+		} else if($className && $id == 'root') {
 			return singleton($className);
-		} else if(is_numeric($id)) {
+		} else if($className && is_numeric($id)) {
 			return DataObject::get_by_id($className, $id);
 		} else {
 			return false;
@@ -932,6 +928,8 @@ class LeftAndMain extends Controller implements PermissionProvider {
 		$data = array();
 		$ids = explode(',', $request->getVar('ids'));
 		foreach($ids as $id) {
+			if($id === "") continue; // $id may be a blank string, which is invalid and should be skipped over
+
 			$record = $this->getRecord($id);
 			$recordController = ($this->stat('tree_class') == 'SiteTree') 
 				?  singleton('CMSPageEditController') 

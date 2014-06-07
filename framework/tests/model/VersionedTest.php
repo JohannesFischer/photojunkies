@@ -492,6 +492,83 @@ class VersionedTest extends SapphireTest {
 			'Writes to and reads from default stage even if a non-matching stage is set'
 		);
 	}
+	
+	/**
+	 * Test that publishing processes respects lazy loaded fields
+	 */
+	public function testLazyLoadFields() {
+		$originalMode = Versioned::get_reading_mode();
+		
+		// Generate staging record and retrieve it from stage in live mode
+		Versioned::reading_stage('Stage');
+		$obj = new VersionedTest_Subclass();
+		$obj->Name = 'bob';
+		$obj->ExtraField = 'Field Value';
+		$obj->write();
+		$objID = $obj->ID;
+		$filter = sprintf('"VersionedTest_DataObject"."ID" = \'%d\'', Convert::raw2sql($objID));
+		Versioned::reading_stage('Live');
+		
+		// Check fields are unloaded prior to access
+		$objLazy = Versioned::get_one_by_stage('VersionedTest_DataObject', 'Stage', $filter, false);
+		$lazyFields = $objLazy->getQueriedDatabaseFields();
+		$this->assertTrue(isset($lazyFields['ExtraField_Lazy']));
+		$this->assertEquals('VersionedTest_Subclass', $lazyFields['ExtraField_Lazy']);
+		
+		// Check lazy loading works when viewing a Stage object in Live mode
+		$this->assertEquals('Field Value', $objLazy->ExtraField);
+		
+		// Test that writeToStage respects lazy loaded fields
+		$objLazy = Versioned::get_one_by_stage('VersionedTest_DataObject', 'Stage', $filter, false);
+		$objLazy->writeToStage('Live');
+		$objLive = Versioned::get_one_by_stage('VersionedTest_DataObject', 'Live', $filter, false);
+		$liveLazyFields = $objLive->getQueriedDatabaseFields();
+		
+		// Check fields are unloaded prior to access
+		$this->assertTrue(isset($liveLazyFields['ExtraField_Lazy']));
+		$this->assertEquals('VersionedTest_Subclass', $liveLazyFields['ExtraField_Lazy']);
+		
+		// Check that live record has original value
+		$this->assertEquals('Field Value', $objLive->ExtraField);
+		
+		Versioned::set_reading_mode($originalMode);
+	}
+	
+	/**
+	 * Tests that reading mode persists between requests
+	 */
+	public function testReadingPersistent() {
+		$session = new Session(array());
+		
+		// Set to stage
+		Director::test('/?stage=Stage', null, $session);
+		$this->assertEquals(
+			'Stage.Stage',
+			$session->inst_get('readingMode'),
+			'Check querystring changes reading mode to Stage'
+		);
+		Director::test('/', null, $session);
+		$this->assertEquals(
+			'Stage.Stage',
+			$session->inst_get('readingMode'),
+			'Check that subsequent requests in the same session remain in Stage mode'
+		);
+		
+		// Test live persists
+		Director::test('/?stage=Live', null, $session);
+		$this->assertEquals(
+			'Stage.Live',
+			$session->inst_get('readingMode'),
+			'Check querystring changes reading mode to Live'
+		);
+		Director::test('/', null, $session);
+		$this->assertEquals(
+			'Stage.Live',
+			$session->inst_get('readingMode'),
+			'Check that subsequent requests in the same session remain in Live mode'
+		);
+		
+	}
 
 }
 

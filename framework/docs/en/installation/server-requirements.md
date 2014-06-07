@@ -11,7 +11,7 @@ Our web-based [PHP installer](/installation) can check if you meet the requireme
  * PHP 5.3.2+
  * We recommend using a PHP accelerator or opcode cache, such as [xcache](http://xcache.lighttpd.net/) or [WinCache](http://www.iis.net/download/wincacheforphp).
  * Allocate at least 48MB of memory to each PHP process. (SilverStripe can be resource hungry for some intensive operations.)
- * Required modules: dom, gd2, fileinfo, hash, iconv, mbstring, mysql (or other database driver), session, simplexml, tokenizer, xml.
+ * Required modules: dom, gd2, fileinfo, hash, iconv, mbstring, mysqli (or other database driver), session, simplexml, tokenizer, xml.
  * Recommended configuration
 
 		safe_mode = Off
@@ -38,7 +38,7 @@ Our web-based [PHP installer](/installation) can check if you meet the requireme
 
 Hardware requirements vary widely depending on the traffic to your website, the complexity of its logic (i.e., PHP), and its size (i.e., database.) By default, all pages are dynamic, and thus access both the database and execute PHP code to generate. SilverStripe can cache full pages and segments of templates to dramatically increase performance.
 
-A typical website page on a conservative single CPU machine (e.g., Intel 2Ghz) takes roughly 300ms to generate. This comfortably allows over a million page views per month. Caching and other optimisations can improve this by a factor of ten or even one hundred times. SilverStripe CMS can be used in multiple-server architectures to improve scalability and redunancy.
+A typical website page on a conservative single CPU machine (e.g., Intel 2Ghz) takes roughly 300ms to generate. This comfortably allows over a million page views per month. Caching and other optimisations can improve this by a factor of ten or even one hundred times. SilverStripe CMS can be used in multiple-server architectures to improve scalability and redundancy.
 
 ## Client side (CMS) requirements
 

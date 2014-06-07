@@ -165,13 +165,13 @@ class Director implements TemplateGlobalProvider {
 					DataModel::inst()
 				);
 			} else {
-			$response = new SS_HTTPResponse();
+				$response = new SS_HTTPResponse();
 				$response->redirect($url);
-			$res = Injector::inst()->get('RequestProcessor')->postRequest($req, $response, $model);
+				$res = Injector::inst()->get('RequestProcessor')->postRequest($req, $response, $model);
 
-			if ($res !== false) {
-				$response->output();
-			}
+				if ($res !== false) {
+					$response->output();
+				}
 			}
 		// Handle a controller
 		} else if($result) {
@@ -245,9 +245,15 @@ class Director implements TemplateGlobalProvider {
 		Requirements::set_backend(new Requirements_Backend());
 
 		// Handle absolute URLs
-		if (@parse_url($url, PHP_URL_HOST) != '') {
+		if (parse_url($url, PHP_URL_HOST)) {
 			$bits = parse_url($url);
-			$_SERVER['HTTP_HOST'] = $bits['host'];
+			// If a port is mentioned in the absolute URL, be sure to add that into the 
+			// HTTP host
+			if(isset($bits['port'])) {
+				$_SERVER['HTTP_HOST'] = $bits['host'].':'.$bits['port'];
+			} else {
+				$_SERVER['HTTP_HOST'] = $bits['host'];
+			}
 			$url = Director::makeRelative($url);
 		}
 
@@ -403,7 +409,12 @@ class Director implements TemplateGlobalProvider {
 
 	/**
 	 * Turns the given URL into an absolute URL.
-	 * @todo Document how relativeToSiteBase works
+	 * By default non-site root relative urls will be evaluated relative to the current request.
+	 * 
+	 * @param string $url URL To transform to absolute
+	 * @param bool $relativeToSiteBase Flag indicating if non-site root relative urls should be
+	 * evaluated relative to the site BaseURL instead of the current url.
+	 * @return string The fully qualified URL
 	 */
 	public static function absoluteURL($url, $relativeToSiteBase = false) {
 		if(!isset($_SERVER['REQUEST_URI'])) return false;
@@ -459,7 +470,7 @@ class Director implements TemplateGlobalProvider {
 	 */
 	public static function protocol() {
 		return (self::is_https()) ? 'https://' : 'http://';
-		}
+	}
 
 	/**
 	 * Return whether the site is running as under HTTPS.
@@ -469,18 +480,23 @@ class Director implements TemplateGlobalProvider {
 	public static function is_https() {
 		if ($protocol = Config::inst()->get('Director', 'alternate_protocol')) {
 			return $protocol == 'https';
-	}
+		}
 
 		if(isset($_SERVER['HTTP_X_FORWARDED_PROTOCOL'])) { 
 			if(strtolower($_SERVER['HTTP_X_FORWARDED_PROTOCOL']) == 'https') {
 				return true;
-	}
-	}
+			}
+		}
+
+		if(isset($_SERVER['X-Forwarded-Proto'])) {
+			if(strtolower($_SERVER['X-Forwarded-Proto']) == "https") {
+				return true;
+			}
+		}
 	
 		if((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')) {
 			return true;
-	}
-		else if(isset($_SERVER['SSL'])) {
+		} else if(isset($_SERVER['SSL'])) {
 			return true;
 		}
 
@@ -507,11 +523,11 @@ class Director implements TemplateGlobalProvider {
 				$baseURL = '/';
 			} else {
 				$baseURL = $base . '/';
-		}
+			}
 			
 			if(defined('BASE_SCRIPT_URL')) {
 				return $baseURL . BASE_SCRIPT_URL;
-	}
+			}
 	
 			return $baseURL;
 		}

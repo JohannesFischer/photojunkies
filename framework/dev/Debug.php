@@ -347,6 +347,7 @@ class Debug {
 				);
 				if(file_exists($errorFilePath)) {
 					$content = file_get_contents(ASSETS_PATH . "/error-$statusCode.html");
+					if(!headers_sent()) header('Content-Type: text/html');
 					// $BaseURL is left dynamic in error-###.html, so that multi-domain sites don't get broken
 					echo str_replace('$BaseURL', Director::absoluteBaseURL(), $content);
 				}
@@ -400,7 +401,12 @@ class Debug {
 		$reporter = self::create_debug_view();
 		
 		// Coupling alert: This relies on knowledge of how the director gets its URL, it could be improved.
-		$httpRequest = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : @$_REQUEST['url'];
+		$httpRequest = null;
+		if(isset($_SERVER['REQUEST_URI'])) {
+			$httpRequest = $_SERVER['REQUEST_URI'];
+		} elseif(isset($_REQUEST['url'])) {
+			$httpRequest = $_REQUEST['url'];
+		}
 		if(isset($_SERVER['REQUEST_METHOD'])) $httpRequest = $_SERVER['REQUEST_METHOD'] . ' ' . $httpRequest;
 
 		$reporter->writeHeader($httpRequest);

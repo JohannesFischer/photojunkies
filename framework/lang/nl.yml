@@ -14,7 +14,7 @@ nl:
     TYPE: 'Type'
     URL: URL
   AssetUploadField:
-    ChooseFiles: 'Selecteer bestanden'
+    ChooseFiles: 'Selecteer bestand'
     DRAGFILESHERE: 'Sleep bestanden hier'
     DROPAREA: 'Sleep hier'
     EDITALL: 'Alle bewerken'
@@ -171,7 +171,7 @@ nl:
     TEXT2: 'wachtwoord reset link'
     TEXT3: voor
   Form:
-    CSRF_FAILED_MESSAGE: 'Er lijkt een technisch probleem te zijn. Klikt u op de knop terug, vernieuw uw browser, en probeer het opnieuw.'
+    CSRF_FAILED_MESSAGE: "Er lijkt een technisch probleem te zijn. Klikt u op de knop terug, vernieuw uw browser, en probeer het opnieuw."
     FIELDISREQUIRED: '{name} is verplicht'
     SubmitBtnLabel: Gaan
     VALIDATIONCREDITNUMBER: 'Gelieve uw credit card number {number} juist in te vullen'
@@ -181,6 +181,7 @@ nl:
     VALIDATIONSTRONGPASSWORD: 'Wachtwoorden moeten bestaan uit minstens één cijfer en één alfanumeriek karakter.'
     VALIDATOR: Controleur
     VALIDCURRENCY: 'Vul een geldige valuta in'
+    CSRF_EXPIRED_MESSAGE: 'Uw sessie is verlopen. Verzend het formulier opnieuw.'
   FormField:
     Example: 'e.g. %s'
     NONE: geen
@@ -225,6 +226,7 @@ nl:
     DefaultGroupTitleContentAuthors: 'Inhoud Auteurs'
     Description: 'Omschrijving '
     GroupReminder: 'Als je de bovenliggende groep selecteert, neemt deze groep alle rollen over'
+    HierarchyPermsError: 'U moet (ADMIN) rechten hebben om de bovenliggende groep "%s" toe te kennen'
     Locked: 'Gesloten?'
     NoRoles: 'Geen rollen gevonden'
     PLURALNAME: Groepen
@@ -265,13 +267,13 @@ nl:
     FROMCOMPUTER: 'Vanaf computer'
     FROMWEB: 'Vanaf een website'
     FindInFolder: 'Zoek in map'
-    IMAGEALT: 'Alternatieve tekst (alt tekst) - wordt getoond als de afbeelding niet kan worden geladen'
+    IMAGEALT: 'Alternatieve tekst (alt tekst)'
     IMAGEALTTEXT: 'Alternatieve tekst (alt-tekst) - wordt gebruikt als de afbeelding niet geladen kan worden '
     IMAGEALTTEXTDESC: 'Voor schermlezers of als afbeelding niet weergegeven kan worden '
     IMAGEDIMENSIONS: Dimensies
     IMAGEHEIGHTPX: Hoogte
     IMAGETITLE: 'Titel tekst (tooltip) - Toon extra informatie over de afbeelding'
-    IMAGETITLETEXT: 'Titel tekst (tooltip) - Toon extra informatie over de afbeelding'
+    IMAGETITLETEXT: 'Titel tekst (tooltip)'
     IMAGETITLETEXTDESC: 'Titel tekst (tooltip) - Toon extra informatie over de afbeelding'
     IMAGEWIDTHPX: Breedte
     INSERTMEDIA: 'Invoegen'
@@ -340,6 +342,7 @@ nl:
     ERRORLOCKEDOUT2: 'Uw account is tijdelijk uitgeschakeld als gevolg van te veel mislukte pogingen om in te loggen. Probeer het over {count} minuten aub.'
     ERRORNEWPASSWORD: 'Het nieuwe wachtwoord komt niet overeen met de bevestiging, probeer het nogmaals'
     ERRORPASSWORDNOTMATCH: 'Huidige wachtwoord kom niet overeen, probeer het nogmaals'
+    ERRORWRONGCRED: 'De ingevulde gegevens lijken niet correct. Probeer het nog een keer.'
     FIRSTNAME: 'Voornaam'
     INTERFACELANG: 'Interface Taal'
     INVALIDNEWPASSWORD: 'Dit is geen goed wachtwoord: {password}'
@@ -411,8 +414,8 @@ nl:
     Title: 'Gegevens modellen'
     UPDATEDRECORDS: '{count} records bijgewerkt'
   ModelAdmin_ImportSpec_ss:
-    IMPORTSPECLINK: 'Toon specificaties van %s'
     IMPORTSPECFIELDS: 'Database kolommen'
+    IMPORTSPECLINK: 'Toon specificaties van %s'
     IMPORTSPECRELATIONS: Relaties
     IMPORTSPECTITLE: 'Specificaties van %s'
   ModelAdmin_Tools_ss:
@@ -454,6 +457,7 @@ nl:
     Title: Titel
   PermissionRoleCode:
     PLURALNAME: 'Machtigingen rol codes'
+    PermsError: 'U moet (ADMIN) rechten hebben om de code "%s" toe te kennen'
     SINGULARNAME: 'Machtigingen rol code'
   Permissions:
     PERMISSIONS_CATEGORY: 'Rollen en toegangsrechten'
@@ -469,6 +473,7 @@ nl:
     ERRORPASSWORDPERMISSION: 'U moet ingelogd zijn om Uw wachtwoord te kunnen veranderen!'
     LOGGEDOUT: 'U bent uitgelogd.  Als U weer wilt inloggen kunt U Uw gegevens hier beneden invoeren.'
     LOGIN: 'Meld aan'
+    LOSTPASSWORDHEADER: 'Wachtwoord vergeten'
     NOTEPAGESECURED: 'Deze pagina is beveiligd. Voer Uw gegevens in en U wordt automatisch doorgestuurd.'
     NOTERESETLINKINVALID: '<p>De link om uw wachtwoord te kunnen wijzigen is niet meer geldig.</p><p>U kunt het <a href="{link1}">opnieuw proberen</a> of uw wachtwoord aanpassen door <a href="{link2}">in te loggen</a>.</p>'
     NOTERESETPASSWORD: 'Voer uw e-mailadres in en we sturen een link waarmee u een nieuw wachtwoord kunt instellen.'
@@ -489,7 +494,7 @@ nl:
     NEWGROUP: 'Nieuwe Groep'
     PERMISSIONS: Rechten
     ROLES: Rollen
-    ROLESDESCRIPTION: 'In deze sectie kan je rollen toevoegen aan deze groep. Rollen zijn logische groeperingen van rechten die in het Rollen tapblad gewijzigd kunnen worden.'
+    ROLESDESCRIPTION: 'In deze sectie kan je rollen toevoegen aan deze groep. Rollen zijn logische groeperingen van rechten die in het Rollen tabblad gewijzigd kunnen worden.'
     TABROLES: Rollen
     Users: Gebruikers
   SecurityAdmin_MemberImportForm:

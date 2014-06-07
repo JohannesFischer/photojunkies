@@ -45,7 +45,7 @@ When designing your site you should only need to modify the *mysite*, *themes* a
 
 ![](_images/tutorial1_cms-basic.jpg)
 
-The CMS is the area in which you can manage your site content. You can access the cms at http://localhost/your_site_name/admin (or http://yourdomain.com/admin if you are using you own domain name). You
+The CMS is the area in which you can manage your site content. You can access the cms at http://localhost/your_site_name/admin (or http://yourdomain.com/admin if you are using your own domain name). You
 will be presented with a login screen. Login using the details you provided at installation. After logging in you
 should see the CMS interface with a list of the pages currently on your website (the site tree). Here you can add, delete and reorganize pages. If you need to delete, publish, or unpublish a page, first check "multi-selection" at the top. You will then be able to perform actions on any checked files using the "Actions" dropdown. Clicking on a page will open it in the page editing interface pictured below (we've entered some test content).
 
@@ -112,11 +112,10 @@ The base_tag variable is replaced with the HTML [base element](http://www.w3.org
 ensures the browser knows where to locate your site's images and css files.
 
 	:::ss
-	$MetaTitle
 	$Title
 	$SiteConfig.Title
 
-These three variables are found within the html `<title>` tag, and are replaced by the text set in the "Meta Title", "Page Name", or "Settings -> Site Title" fields in the CMS.
+These two variables are found within the html `<title>` tag, and are replaced by the "Page Name" and "Settings -> Site Title" fields in the CMS.
 	
 	:::ss
 	$MetaTags 

@@ -39,6 +39,8 @@ class FunctionalTest extends SapphireTest {
 	
 	/**
 	 * CSSContentParser for the most recently requested page.
+	 * 
+	 * @var CSSContentParser
 	 */
 	protected $cssParser = null;
 	
@@ -48,6 +50,11 @@ class FunctionalTest extends SapphireTest {
 	 * However, this will let you inspect the intermediary headers
 	 */
 	protected $autoFollowRedirection = true;
+
+	/**
+	 * @var String
+	 */
+	protected $originalTheme = null;
 	
 	/**
 	 * Returns the {@link Session} object for this test
@@ -64,7 +71,10 @@ class FunctionalTest extends SapphireTest {
 		$this->mainSession = new TestSession();
 
 		// Disable theme, if necessary
-		if(static::get_disable_themes()) Config::inst()->update('SSViewer', 'theme', null);
+		if(static::get_disable_themes()) {
+			$this->originalTheme = Config::inst()->get('SSViewer', 'theme');
+			Config::inst()->update('SSViewer', 'theme', null);
+		}
 		
 		// Switch to draft site, if necessary
 		if(static::get_use_draft_site()) {
@@ -83,6 +93,10 @@ class FunctionalTest extends SapphireTest {
 		
 		parent::tearDown();
 		unset($this->mainSession);
+
+		if(static::get_disable_themes()) {
+			Config::inst()->update('SSViewer', 'theme', $this->originalTheme);
+		}
 	}
 
 	/**
@@ -164,6 +178,8 @@ class FunctionalTest extends SapphireTest {
 	
 	/**
 	 * Return a CSSContentParser for the most recent content.
+	 * 
+	 * @return CSSContentParser
 	 */
 	public function cssParser() {
 		if(!$this->cssParser) $this->cssParser = new CSSContentParser($this->mainSession->lastContent());

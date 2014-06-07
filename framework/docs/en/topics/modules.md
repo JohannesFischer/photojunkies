@@ -34,7 +34,7 @@ instead make it easier for developers to build other applications.
 
 ## Finding Modules
 
-* [Official module list on silverstripe.org](http://silverstripe.org/modules)
+* [Official module list on silverstripe.org](http://addons.silverstripe.org/)
 * [Packagist.org "silverstripe" tag](https://packagist.org/search/?tags=silverstripe)
 * [Github.com "silverstripe" search](https://github.com/search?q=silverstripe&ref=commandbar)
 
@@ -105,4 +105,4 @@ and comes with the same caveats.
 
 ## Related
 
-* [Modules Development](/topics/module-developement)
+* [Modules Development](/topics/module-development)

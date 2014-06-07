@@ -1,6 +1,11 @@
 <?php
 
+/**
+ * @package framework
+ * @subpackage tests
+ */
 class GridFieldDetailFormTest extends FunctionalTest {
+
 	protected static $fixture_file = 'GridFieldDetailFormTest.yml';
 
 	protected $extraDataObjects = array(
@@ -8,6 +13,48 @@ class GridFieldDetailFormTest extends FunctionalTest {
 		'GridFieldDetailFormTest_PeopleGroup',
 		'GridFieldDetailFormTest_Category',
 	);
+
+	public function testValidator() {
+		$this->logInWithPermission('ADMIN');
+
+		$response = $this->get('GridFieldDetailFormTest_Controller');
+		$this->assertFalse($response->isError());
+		$parser = new CSSContentParser($response->getBody());
+		$addlinkitem = $parser->getBySelector('.ss-gridfield .new-link');
+		$addlink = (string) $addlinkitem[0]['href'];
+
+		$response = $this->get($addlink);
+		$this->assertFalse($response->isError());
+
+		$parser = new CSSContentParser($response->getBody());
+		$addform = $parser->getBySelector('#Form_ItemEditForm');
+		$addformurl = (string) $addform[0]['action'];
+
+		$response = $this->post(
+			$addformurl,
+			array(
+				'FirstName' => 'Jeremiah',
+				'ajax' => 1,
+				'action_doSave' => 1
+			)
+		);
+
+		$parser = new CSSContentParser($response->getBody());
+		$errors = $parser->getBySelector('span.required');
+		$this->assertEquals(1, count($errors));
+
+		$response = $this->post(
+			$addformurl,
+			array(
+				'ajax' => 1,
+				'action_doSave' => 1
+			)
+		);
+
+		$parser = new CSSContentParser($response->getBody());
+		$errors = $parser->getBySelector('span.required');
+		$this->assertEquals(2, count($errors));
+	}
 
 	public function testAddForm() {
 		$this->logInWithPermission('ADMIN');
@@ -220,9 +267,40 @@ class GridFieldDetailFormTest extends FunctionalTest {
 		$form = $request->ItemEditForm();
 		$this->assertNotNull($form->Fields()->fieldByName('Callback'));
 	}
+
+	/**
+	 * Tests that a has-many detail form is pre-populated with the parent ID.
+	 */
+	public function testHasManyFormPrePopulated() {
+		$group = $this->objFromFixture(
+			'GridFieldDetailFormTest_PeopleGroup', 'group'
+		);
+
+		$this->logInWithPermission('ADMIN');
+
+		$response = $this->get('GridFieldDetailFormTest_Controller');
+		$parser = new CSSContentParser($response->getBody());
+		$addLink = $parser->getBySelector('.ss-gridfield .new-link');
+		$addLink = (string) $addLink[0]['href'];
+
+		$response = $this->get($addLink);
+		$parser = new CSSContentParser($response->getBody());
+		$title = $parser->getBySelector('#GroupID span');
+		$id = $parser->getBySelector('#GroupID input');
+
+		$this->assertEquals($group->Name, (string) $title[0]);
+		$this->assertEquals($group->ID, (string) $id[0]['value']);
+	}
+
 }
 
+/**
+ * @package framework
+ * @subpackage tests
+ */
+
 class GridFieldDetailFormTest_Person extends DataObject implements TestOnly {
+
 	private static $db = array(
 		'FirstName' => 'Varchar',
 		'Surname' => 'Varchar'
@@ -255,7 +333,18 @@ class GridFieldDetailFormTest_Person extends DataObject implements TestOnly {
 		);
 		return $fields;
 	}
+
+	public function getCMSValidator() {
+		return new RequiredFields(array(
+			'FirstName', 'Surname'
+		));
+	}
 }
+
+/**
+ * @package framework
+ * @subpackage tests
+ */
 
 class GridFieldDetailFormTest_PeopleGroup extends DataObject implements TestOnly {
 	private static $db = array(
@@ -280,6 +369,11 @@ class GridFieldDetailFormTest_PeopleGroup extends DataObject implements TestOnly
 		return $fields;
 	}
 }
+
+/**
+ * @package framework
+ * @subpackage tests
+ */
 
 class GridFieldDetailFormTest_Category extends DataObject implements TestOnly {
 	
@@ -306,6 +400,11 @@ class GridFieldDetailFormTest_Category extends DataObject implements TestOnly {
 	}
 }
 
+/**
+ * @package framework
+ * @subpackage tests
+ */
+
 class GridFieldDetailFormTest_Controller extends Controller implements TestOnly {
 	
 	private static $allowed_actions = array('Form');
@@ -329,6 +428,11 @@ class GridFieldDetailFormTest_Controller extends Controller implements TestOnly 
 	}
 }
 
+/**
+ * @package framework
+ * @subpackage tests
+ */
+
 class GridFieldDetailFormTest_GroupController extends Controller implements TestOnly {
 
 	private static $allowed_actions = array('Form');
@@ -344,6 +448,11 @@ class GridFieldDetailFormTest_GroupController extends Controller implements Test
 		return new Form($this, 'Form', new FieldList($field), new FieldList());
 	}
 }
+
+/**
+ * @package framework
+ * @subpackage tests
+ */
 
 class GridFieldDetailFormTest_CategoryController extends Controller implements TestOnly {
 
@@ -366,5 +475,8 @@ class GridFieldDetailFormTest_CategoryController extends Controller implements T
 	}
 }
 
-class GridFieldDetailFormTest_ItemRequest extends GridFieldDetailForm_ItemRequest implements TestOnly {
-}
+/**
+ * @package framework
+ * @subpackage tests
+ */
+class GridFieldDetailFormTest_ItemRequest extends GridFieldDetailForm_ItemRequest implements TestOnly { }

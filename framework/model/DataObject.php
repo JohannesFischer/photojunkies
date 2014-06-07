@@ -65,6 +65,11 @@
  * 
  * @package framework
  * @subpackage model
+ *
+ * @property integer ID ID of the DataObject, 0 if the DataObject doesn't exist in database.
+ * @property string ClassName Class name of the DataObject
+ * @property string LastEdited Date and time of DataObject's last modification.
+ * @property string Created Date and time of DataObject creation.
  */
 class DataObject extends ViewableData implements DataObjectInterface, i18nEntityProvider {
 	
@@ -232,7 +237,7 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
 				$db = DB::getConn();
 				if($db->hasField($class, 'ClassName')) {
 					$existing = $db->query("SELECT DISTINCT \"ClassName\" FROM \"$class\"")->column();
-					$classNames = array_unique(array_merge($existing, $classNames));
+					$classNames = array_unique(array_merge($classNames, $existing));
 				}
 
 				self::$classname_spec_cache[$class] = "Enum('" . implode(', ', $classNames) . "')";
@@ -1125,7 +1130,7 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
 			if (!$valid->valid()) {
 				$writeException = new ValidationException(
 					$valid,
-					"Validation error writing a $this->class object: " . $valid->message() . ".  Object not written.",
+					$valid->message(),
 					E_USER_WARNING
 				);
 			}
@@ -1528,6 +1533,11 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
 		if(!$remoteClass) {
 			throw new Exception("Unknown $type component '$component' on class '$this->class'");
 		}
+		if(!ClassInfo::exists(strtok($remoteClass, '.'))) {
+			throw new Exception(
+				"Class '$remoteClass' not found, but used in $type component '$component' on class '$this->class'"
+			);
+		}
 		
 		if($fieldPos = strpos($remoteClass, '.')) {
 			return substr($remoteClass, $fieldPos + 1) . 'ID';
@@ -1546,8 +1556,9 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
 
 		$message = "No has_one found on class '$remoteClass'";
 		if($type == 'has_many') {
-			// include a hint for missing has_many that is missing a has_one
-			$message .= ", the has_many relation from '$this->class' to '$remoteClass' requires a has_one on '$remoteClass'";
+			// include a hint for has_many that is missing a has_one
+			$message .= ", the has_many relation from '$this->class' to '$remoteClass'";
+			$message .= " requires a has_one on '$remoteClass'";
 		}
 		throw new Exception($message);
 	}
@@ -2155,6 +2166,11 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
 		}
 
 		$dataQuery = new DataQuery($tableClass);
+		
+		// Reset query parameter context to that of this DataObject
+		if($params = $this->getSourceQueryParams()) {
+			foreach($params as $key => $value) $dataQuery->setQueryParam($key, $value);
+		}
 
 		// TableField sets the record ID to "new" on new row data, so don't try doing anything in that case
 		if(!is_numeric($this->record['ID'])) return false;
@@ -3168,16 +3184,25 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
 		$fields = $this->stat('searchable_fields');
 		$labels = $this->fieldLabels();
 		
-		// fallback to summary fields
-		if(!$fields) {
+		// fallback to summary fields (unless empty array is explicitly specified)
+		if( ! $fields && ! is_array($fields)) {
 			$summaryFields = array_keys($this->summaryFields());
 			$fields = array();
 
-			// remove the custom getters as the search should not include.
+			// remove the custom getters as the search should not include them
 			if($summaryFields) {
 				foreach($summaryFields as $key => $name) {
-					if($this->hasDatabaseField($name) || $this->relObject($name)) {
+					$spec = $name;
+
+					// Extract field name in case this is a method called on a field (e.g. "Date.Nice")
+					if(($fieldPos = strpos($name, '.')) !== false) {
+						$name = substr($name, 0, $fieldPos);
+					}
+
+					if($this->hasDatabaseField($name)) {
 						$fields[] = $name;
+					} elseif($this->relObject($spec)) {
+						$fields[] = $spec;
 					}
 				}
 			}
@@ -3273,7 +3298,6 @@ class DataObject extends ViewableData implements DataObjectInterface, i18nEntity
 				}
 				foreach($types as $type => $attrs) {
 					foreach($attrs as $name => $spec) {
-						// var_dump("{$ancestorClass}.{$type}_{$name}");
 						$autoLabels[$name] = _t("{$ancestorClass}.{$type}_{$name}",FormField::name_to_label($name));
 					}
 				}

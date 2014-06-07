@@ -85,9 +85,8 @@ class SSViewerTest extends SapphireTest {
 	 * Small helper to render templates from strings
 	 */
 	public function render($templateString, $data = null) {
-		$t = SSViewer::fromString($templateString);
 		if(!$data) $data = new SSViewerTestFixture();
-		return $t->process($data);
+		return SSViewer::execute_string($templateString, $data);
 	}
 	
 	public function testRequirements() {
@@ -1019,6 +1018,38 @@ after')
 	}
 
 	/**
+	 * @covers SSViewer::get_templates_by_class()
+	 */
+	public function testGetTemplatesByClass() {
+		$self = $this;
+		$this->useTestTheme('layouttest', function() use ($self) {
+			// Test passing a string
+			$templates = SSViewer::get_templates_by_class('SSViewerTest_Controller', '', 'Controller');
+			$self->assertCount(2, $templates);
+
+			// Test to ensure we're stopping at the base class.
+			$templates = SSViewer::get_templates_by_class('SSViewerTest_Controller', '', 'SSViewerTest_Controller');
+			$self->assertCount(1, $templates);
+
+			// Make sure we can filter our templates by suffix.
+			$templates = SSViewer::get_templates_by_class('SSViewerTest', '_Controller');
+			$self->assertCount(1, $templates);
+
+			// Test passing a valid object
+			$templates = SSViewer::get_templates_by_class("SSViewerTest_Controller", '', 'Controller');
+
+			// Test that templates are returned in the correct order
+			$self->assertEquals('SSViewerTest_Controller', array_shift($templates));
+			$self->assertEquals('Controller', array_shift($templates));
+
+			// Let's throw something random in there.
+			$self->setExpectedException('InvalidArgumentException');
+			$templates = SSViewer::get_templates_by_class(array());
+			$this->assertCount(0, $templates);
+		});
+	}
+
+	/**
 	 * @covers SSViewer::get_themes()
 	 */
 	public function testThemeRetrieval() {
@@ -1298,6 +1329,38 @@ after')
 		foreach($tests as $template => $expected) {
 			$this->assertEquals($expected, trim($this->render($template, $data)));
 		}
+	}
+
+	public function testClosedBlockExtension() {
+		$count = 0;
+		$parser = new SSTemplateParser();
+		$parser->addClosedBlock(
+			'test',
+			function (&$res) use (&$count) {
+				$count++;
+			}
+		);
+
+		$template = new SSViewer_FromString("<% test %><% end_test %>", $parser);
+		$template->process(new SSViewerTestFixture());
+
+		$this->assertEquals(1, $count);
+	}
+
+	public function testOpenBlockExtension() {
+		$count = 0;
+		$parser = new SSTemplateParser();
+		$parser->addOpenBlock(
+			'test',
+			function (&$res) use (&$count) {
+				$count++;
+			}
+		);
+
+		$template = new SSViewer_FromString("<% test %>", $parser);
+		$template->process(new SSViewerTestFixture());
+
+		$this->assertEquals(1, $count);
 	}
 }
 
