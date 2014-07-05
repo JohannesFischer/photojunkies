@@ -46,12 +46,7 @@
 	
 	<% include Footer %>
 
-	<script src="{$ThemeDir}/javascript/jquery.js"></script>
-	<script src="{$ThemeDir}/javascript/script.js"></script>
-	<script src="{$ThemeDir}/javascript/foundation/foundation.min.js"></script>
-	<script src="{$ThemeDir}/javascript/foundation/foundation/foundation.orbit.js"></script>
-	<script>jQuery(document).foundation();</script>
-	<% if not CurrentMember %>
+	<% if not CurrentMember && not isDev %>
 		<% include TrackingCode %>
 	<% end_if %>
 	

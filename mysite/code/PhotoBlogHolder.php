@@ -37,7 +37,6 @@ class PhotoBlogHolder extends BlogHolder {
 	}
 	
 	function blogOwners($sort = array('FirstName'=>'ASC','Surname'=>'ASC'), $direction = null) {
-		
 		$members = Author::get(); 
 		$members->sort($sort);
 		
@@ -52,10 +51,6 @@ class PhotoBlogHolder_Controller extends BlogHolder_Controller {
 
 	function init() {
 		parent::init();
-	}
-	
-	public function HasMoreThanTwoImages() {
-		return 3;
 	}
 	
 }

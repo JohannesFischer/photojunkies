@@ -4,9 +4,15 @@
 
 $default: #f938ab;
 $backgroundFooter: #111;
+$backgroundOverlay: #84C5FF;
 
 @mixin linear-gradient($color1, $color2) {
 	background: linear-gradient(to bottom, $color1, $color2);
+}
+
+@mixin rgba($color, $alpha) {
+	background-color: $color;
+	background: rgba($color, $alpha);
 }
 
 @mixin transition ($property: all, $duration: 2s, $timing: ease) {
@@ -80,17 +86,34 @@ h2,
  * --------------------------------------------------------------- */
 
 .contain-to-grid {
+	
 	&,
 	li ul.dropdown {
 		background: rgba(0, 0, 0, .8);
 	}
 	
+	a[rel=home] {
+		color: #fff;
+		display: block;
+		font-size: 1.5rem;
+		line-height: 45px;
+		padding-left: 10px;
+	}
+	
 	& .top-bar,
 	& ul.title-area,
 	.top-bar-section ul,
-	.top-bar-section ul li a,
+	.top-bar-section ul li,
 	.top-bar-section li a:not(.button) {
 		background: transparent;
+	}
+	
+	.top-bar-section ul li a {
+		@include transition(background, .5s);
+	}
+	
+	.top-bar-section a {
+		font-size: 1rem;
 	}
 }
 
@@ -191,14 +214,17 @@ h2,
 	background-position: center 45px;
 	background-repeat: no-repeat;
 	height: 300px;
+	
 	.columns {
 		margin-top: 70px;
 	}
+	
 	h2 {
 		border-bottom: 1px solid #fff;
 		padding-bottom: 10px;
 		text-transform: uppercase;
 	}
+	
 	h2,
 	p {
 		color: #fff;
@@ -234,8 +260,79 @@ h2,
 		display: block;
 		height: 30px;
 		line-height: 30px;
+		overflow: hidden;
 		padding: 0 1em;
+		text-overflow: ellipsis;
 		white-space: nowrap;
+		width: 100%;
+	}
+}
+
+/*
+ * Image Gallery
+ * --------------------------------------------------------------- */
+
+#ImageGallery {
+	margin-bottom: 1em;
+}
+
+.gallery-image {
+	
+	float: left;
+	position: relative;
+	text-align: center;
+	width: 50%;
+	
+	&:hover {
+		
+		& .overlay {
+			opacity: 1;
+		}
+	}
+	
+	.overlay {
+		height: 100%;
+		left: 0;
+		opacity: 0;
+		position: absolute;
+		@include rgba($backgroundOverlay, 0.5);
+		top: 0;
+		@include transition(opacity, 1s);
+		width: 100%;
+		
+		h4 {
+			color: #fff;
+			margin-bottom: 25px;
+			margin-top: 10%;
+			padding: 5px 0;
+			@include rgba(#000, 0.8);
+			text-transform: uppercase;
+		}
+		
+		p {
+			
+		}
+		
+		a {
+			background: #000;
+			color: #fff;
+			padding: 5px 10px;
+			@include transition(background, .5s);
+			
+			&:hover {
+				background: $backgroundOverlay;
+				color: #333;
+			}
+		}
+	}
+}
+
+div.loading {
+	background: $backgroundFooter;
+	color: #fff;
+	
+	&.hidden {
+		display: none;
 	}
 }
 
@@ -248,11 +345,12 @@ footer {
 	color: #828282;
 	
 	.large-6 {
-		margin-bottom: 20px;
-		margin-top: 20px;
+		margin-bottom: 10px;
+		margin-top: 10px;
 	}
 	.tag-list {
 		list-style: none;
+		margin-left: 0;
 		
 		li {
 			float: left;
@@ -308,6 +406,16 @@ footer {
  * Comments
  * --------------------------------------------------------------- */
 
+.comments-holder-container {
+	
+	h4,
+	p,
+	label {
+		color: #fff;
+	}
+	
+}
+
 #Form_CommentsForm {
 	}
 	#Form_CommentsForm label {
@@ -325,23 +433,32 @@ footer {
 #comments-holder .comments-holder {
 	margin: 0 0 20px;
 }
+
 .comments-list {
 	list-style: none;
-}
-#comments-holder .comment p {
-	background: url(../images/icons/quotes.png) no-repeat 0 5px;
-	margin: 0 0 5px;
-	padding: 0 0 0 30px;
-}
-#comments-holder p.info {
-	background: none;
-	font-weight: bold;
-	padding: 0;
+	
+	div.comment {
+		overflow: hidden;
+		
+		img {
+			border: 2px solid #ddd;
+			border-radius: 50%;
+			display: block;
+			float: left;
+			margin: 0 20px 10px 0;
+		}
+		
+		p {
+			float: left;
+		}
+	}
 }
 
 /* -----------------------------------------
    Mobile Styles
 ----------------------------------------- */
+
+// medium screens
 
 @media only screen and (max-width: 767px) {
 
@@ -353,7 +470,9 @@ footer {
 	
 }
 
-@media only screen and (max-width: 480px) {
+// small screens
+
+@media only screen and (max-width: 640px) {
 
 	.hide-on-small-screens {
 		display: none;
@@ -372,4 +491,16 @@ footer {
 		}
 	}
 	
+	.blog-header {
+		height: 200px;
+		
+		.columns {
+			margin-top: 30px;
+		}
+	}
+	
+	.gallery-image {
+		width: 100%;
+	}
+
 }

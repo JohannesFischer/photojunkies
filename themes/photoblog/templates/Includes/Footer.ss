@@ -2,12 +2,12 @@
 	<div class="row">
 		<div class="columns large-6">
 			<h5>About</h5>
-			<p>Lorem Ipsum</p>
+			<p>Taking pictures to make the time stop</p>
 		</div>
 		<div class="columns large-6">
 			<h5>Tags</h5>
 			<ul class="tag-list">
-				<% loop getTags(10) %>
+				<% loop getTags(20) %>
 					<li>
 						<a href="$Link">$Tag</a>
 					</li>

@@ -19,65 +19,61 @@ class Page_Controller extends ContentController {
 		// Google Font Family
 		$this->FontFamily = 'Numans';
 		
+		if ($this->URLSegment == 'Security') { return; }
+		
 		$theme_folder = 'themes/' . SSViewer::current_theme();
 		$css_folder = $theme_folder . '/css/';
 		
+		Requirements::set_combined_files_folder($theme_folder . '/_combinedfiles');
+		
 		$css_files = array(
-			'foundation/normalize.css',
-			'foundation/foundation.min.css',
-			'typography.css',
-			'form.css',
-			'app.css'
+			$css_folder . 'foundation/normalize.css',
+			$css_folder . 'foundation/foundation.min.css',
+			$css_folder . 'typography.css',
+			$css_folder . 'form.css',
+			$css_folder . 'app.css'
 		);
 		
-		foreach ($css_files as $file) {
-			Requirements::css($css_folder . $file);
-		}
+		// combine CSS
+		Requirements::combine_files('css_min.css', $css_files);
+		
+		$js_folder = $theme_folder . '/javascript/';
 		
 		$js_files = array(
-			'javascript/jquery.js'
+			$js_folder . 'jquery.js',
+			$js_folder . 'script.js',
+			$js_folder . 'modernizr.js',
+			$js_folder . 'foundation/foundation.min.js',
+			$js_folder . 'foundation/foundation/foundation.topbar.js',
+			$js_folder . 'foundation/foundation/foundation.interchange.js',
+			$js_folder . 'foundation/foundation/foundation.orbit.js'
 		);
 		
-		foreach ($js_files as $file) {
-			Requirements::javascript($theme_folder . $file);
-		}
+		// combine JS
+		Requirements::combine_files('js_min.css', $js_files);
+		
+		Requirements::customScript(<<<JS
+jQuery(document).foundation();
+JS
+);
 	}
 	
 	public function getEntryImage() {
 		return BlogImage::get()->filter('BlogEntryID', $this->ID)->First();
 	}
 	
-	public function getTags($limit = 10) {
-		$entries = PhotoBlogEntry::get();
-		
-		//$output = new ArrayList();
-		//$b = array();
-		//
-		//foreach ($entries as $entry) {
-		//	$tags = preg_split(" *, *", trim($entry->Tags));
-		//	if ($tags[0] == '') continue;
-		//	
-		//	$link = $entry->getParent() ? $entry->getParent()->Link('tag') : '';
-		//	foreach($tags as $tag) {
-		//		if (in_array($tag, $b)) continue;
-		//		$b[] = $tag;
-		//		
-		//		$output->push(new ArrayData(array(
-		//			'Tag' => Convert::raw2xml($tag),
-		//			'Link' => $link . '/' . urlencode($tag),
-		//			'URLTag' => urlencode($tag)
-		//		)));
-		//	}
-		//}
-		//
-		//return $output->limit($limit);
-	
+	public function getTags($limit = 10) {	
 		$output = TagCloud::TagsCollection();
+		
 		return $output->limit($limit);
 	}
 	
 	public function IsNotOne($i = 0) {
 		return $i != 1;
+	}
+	
+	public function isDev() {
+		return Director::isDev();
 	}
 	
 	public function getFontFamily() {

@@ -57,11 +57,24 @@ h2,
 .contain-to-grid,
 .contain-to-grid li ul.dropdown {
   background: rgba(0, 0, 0, 0.8); }
+.contain-to-grid a[rel=home] {
+  color: #fff;
+  display: block;
+  font-size: 1.5rem;
+  line-height: 45px;
+  padding-left: 10px; }
 .contain-to-grid .top-bar, .contain-to-grid ul.title-area,
 .contain-to-grid .top-bar-section ul,
-.contain-to-grid .top-bar-section ul li a,
+.contain-to-grid .top-bar-section ul li,
 .contain-to-grid .top-bar-section li a:not(.button) {
   background: transparent; }
+.contain-to-grid .top-bar-section ul li a {
+  -moz-transition: background 0.5s ease;
+  -webkit-transition: background 0.5s ease;
+  -o-transition: background 0.5s ease;
+  transition: background 0.5s ease; }
+.contain-to-grid .top-bar-section a {
+  font-size: 1rem; }
 
 /*
  * Page
@@ -177,8 +190,63 @@ h2,
     display: block;
     height: 30px;
     line-height: 30px;
+    overflow: hidden;
     padding: 0 1em;
-    white-space: nowrap; }
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%; }
+
+/*
+ * Image Gallery
+ * --------------------------------------------------------------- */
+#ImageGallery {
+  margin-bottom: 1em; }
+
+.gallery-image {
+  float: left;
+  position: relative;
+  text-align: center;
+  width: 50%; }
+  .gallery-image:hover .overlay {
+    opacity: 1; }
+  .gallery-image .overlay {
+    height: 100%;
+    left: 0;
+    opacity: 0;
+    position: absolute;
+    background-color: #84c5ff;
+    background: rgba(132, 197, 255, 0.5);
+    top: 0;
+    -moz-transition: opacity 1s ease;
+    -webkit-transition: opacity 1s ease;
+    -o-transition: opacity 1s ease;
+    transition: opacity 1s ease;
+    width: 100%; }
+    .gallery-image .overlay h4 {
+      color: #fff;
+      margin-bottom: 25px;
+      margin-top: 10%;
+      padding: 5px 0;
+      background-color: black;
+      background: rgba(0, 0, 0, 0.8);
+      text-transform: uppercase; }
+    .gallery-image .overlay a {
+      background: #000;
+      color: #fff;
+      padding: 5px 10px;
+      -moz-transition: background 0.5s ease;
+      -webkit-transition: background 0.5s ease;
+      -o-transition: background 0.5s ease;
+      transition: background 0.5s ease; }
+      .gallery-image .overlay a:hover {
+        background: #84c5ff;
+        color: #333; }
+
+div.loading {
+  background: #111111;
+  color: #fff; }
+  div.loading.hidden {
+    display: none; }
 
 /*
  * Footer
@@ -187,10 +255,11 @@ footer {
   background: #111111;
   color: #828282; }
   footer .large-6 {
-    margin-bottom: 20px;
-    margin-top: 20px; }
+    margin-bottom: 10px;
+    margin-top: 10px; }
   footer .tag-list {
-    list-style: none; }
+    list-style: none;
+    margin-left: 0; }
     footer .tag-list li {
       float: left;
       margin: 0 4px 0 0; }
@@ -226,6 +295,11 @@ footer {
 /*
  * Comments
  * --------------------------------------------------------------- */
+.comments-holder-container h4,
+.comments-holder-container p,
+.comments-holder-container label {
+  color: #fff; }
+
 #Form_CommentsForm label {
   display: block;
   float: none;
@@ -242,16 +316,16 @@ footer {
 
 .comments-list {
   list-style: none; }
-
-#comments-holder .comment p {
-  background: url(../images/icons/quotes.png) no-repeat 0 5px;
-  margin: 0 0 5px;
-  padding: 0 0 0 30px; }
-
-#comments-holder p.info {
-  background: none;
-  font-weight: bold;
-  padding: 0; }
+  .comments-list div.comment {
+    overflow: hidden; }
+    .comments-list div.comment img {
+      border: 2px solid #ddd;
+      border-radius: 50%;
+      display: block;
+      float: left;
+      margin: 0 20px 10px 0; }
+    .comments-list div.comment p {
+      float: left; }
 
 /* -----------------------------------------
    Mobile Styles
@@ -259,7 +333,7 @@ footer {
 @media only screen and (max-width: 767px) {
   .blogentry-preview .blogentry-summary {
     width: 60%; } }
-@media only screen and (max-width: 480px) {
+@media only screen and (max-width: 640px) {
   .hide-on-small-screens {
     display: none; }
 
@@ -269,4 +343,12 @@ footer {
     width: 100%; }
   .blogentry-preview h2,
   .blogentry-preview .blog-summary-date {
-    text-align: center; } }
+    text-align: center; }
+
+  .blog-header {
+    height: 200px; }
+    .blog-header .columns {
+      margin-top: 30px; }
+
+  .gallery-image {
+    width: 100%; } }

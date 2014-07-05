@@ -12,5 +12,9 @@ jQuery.noConflict();
 			jQuery(this).addClass('button');	
 		});
 		
+		if (jQuery('#ImageGallery').length == 1) {
+			ImageGallery.init();
+		}
+		
 	});
 }(jQuery));

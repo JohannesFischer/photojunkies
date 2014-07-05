@@ -6,7 +6,6 @@
     $MetaTags(false)
     <link rel="shortcut icon" href="/favicon.ico">
 	<% require themedCSS(foundation/normalize) %>
-	<% require themedCSS(foundation/foundation.min) %>
     <% require themedCSS(cmslogin) %>
 </head>
 <body class="LoginPage">
@@ -15,10 +14,8 @@
         <div class="PageContent">$Content</div>
     <% end_if %>
 
-    <div id="CMSLogin">
-        <div class="content">
-            $Form
-        </div>
+    <div id="CMSSecurity">
+        $Form
     </div>
 	
 	<script>

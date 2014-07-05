@@ -64,12 +64,12 @@ class PhotoBlogEntry_Controller extends BlogEntry_Controller {
 		return $this->Images()->Count() > 1;
 	}
 	
-	public function FirstImage() {
-		return $blog_image = $this->Images()->First();
+	public function hasMoreThanFourImages() {
+		return $this->Images()->Count() >= 4;
 	}
 	
-	public function HasMoreThanTwoImages() {
-		return $this->Images()->Count();
+	public function FirstImage() {
+		return $this->Images()->First();
 	}
 	
 	private function getPreviousID($entries) {

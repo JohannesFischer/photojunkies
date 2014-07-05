@@ -1,4 +1,4 @@
-<div class="blog-header" style="background-image: url($FirstImage.Image.CroppedImage(2000,300).URL)">
+<div class="blog-header" data-interchange="[$FirstImage.Image.CroppedImage(2000,300).URL.URL, (default)], [$FirstImage.Image.CroppedImage(800,200).URL, (small)], [$FirstImage.Image.CroppedImage(1200,300).URL, (medium)], [$FirstImage.Image.CroppedImage(2000,300).URL, (large)]">
 	<div class="row">
 		<div class="columns large-12">
 			<h2>$Title</h2>
@@ -30,12 +30,13 @@
 							<strong>$FirstImage.Title</strong> $FirstImage.Description
 						</p>
 					<% end_if %>
-					<a href="$FirstImage.Image.URL" class="button new-window small">Originalbild runterladen</a>
 				</div>
 			<% end_if %>
 			
+			$Content
+			
 			<p class="authorDate">
-				<% _t('POSTEDBY', 'Posted by') %> $Author.XML <% _t('POSTEDON', 'on') %> $Date.format('d/m/Y') | <a href="$Link#comments-holder" title="View Comments Posted">$Comments.Count <% if IsNotOne($Comments.Count) %><% _t('COMMENTS', 'Comments') %><% else %><% _t('COMMENT', 'Comment') %><% end_if %></a>
+				<% _t('POSTEDBY', 'Posted by') %> $Author.XML <% _t('POSTEDON', 'on') %> $Date.format('d/m/Y')</a>
 			</p>
 			<% if TagsCollection %>
 				<p class="icon tags">
@@ -45,8 +46,6 @@
 				</p>
 			<% end_if %>
 			
-			$Content
-			
 		</div>
 		
 		<% if IsOwner %>
@@ -54,8 +53,13 @@
 				<a href="$EditURL" id="editpost" title="<% _t('EDITTHIS', 'Edit this post') %>"><% _t('EDITTHIS', 'Edit this post') %></a> | <a href="$Link(unpublishPost)" id="unpublishpost"><% _t('UNPUBLISHTHIS', 'Unpublish this post') %></a>
 			</p>
 		<% end_if %>
-		
-		$PageComments
-		
+	
 	</div>
+	
+</div>
+
+<div class="row">
+	
+	<div class="columns large-12">$PageComments</div>
+	
 </div>
