@@ -2,7 +2,7 @@
 class BlogImage extends DataObject {
 	
 	private static $db = array(
-		'AverageColor' => 'Varchar(12)',
+		//'AverageColor' => 'Varchar(11)',
 		'Title' => 'Varchar',
 		'Description' => 'Text',
 		'SortOrder' => 'Int'
@@ -24,39 +24,25 @@ class BlogImage extends DataObject {
 		parent::onAfterWrite();
 		// get average color
 		//$image = $this->Image();
+		//$file_id = isset($_POST['Image']['Files'][0]) ? $_POST['Image']['Files'][0] : 0;
 		//
-		//if ($this->ImageID != 0) {
-		//	$color = $this->findAverageColor();
-		//	$this->AverageColor = $color;
+		//if ($file_id != 0 && ! $this->AverageColor) {
+		//	$this->AverageColor = $this->findAverageColor($file_id);
+		//	$this->write();
 		//}
 	}
 	
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
-		$fields->removeByName('AverageColor');
+		//$fields->removeByName('AverageColor');
 		$fields->removeByName('BlogEntryID');
 		$fields->removeByName('SortOrder');
 		return $fields;
 	}
 	
-	private function fromRGB($r, $g, $b) {
-		$r = dechex($r);
-		if (strlen($r) < 2) $r='0' . $r;
-		
-		$g = dechex($g);
-		if (strlen($g) < 2) $g='0' . $g;
-		
-		$b = dechex($b);
-		if (strlen($b) < 2) $b='0' . $b;
-		
-		return $r . $g . $b;
-	}
-	
-	private function findAverageColor() {
-		//$img = $this->Image();
-		if ( ! $this->ImageID) return false;
-		
-		$img = File::get_by_id('Image', $this->ImageID);
+	private function findAverageColor($file_id) {		
+		$img = File::get_by_id('Image', $file_id);
+		if ( ! $img) return false;
 		
 		$image = imagecreatefromjpeg($_SERVER["DOCUMENT_ROOT"] . '/' . $img->Filename);
 		$width = imagesx($image);

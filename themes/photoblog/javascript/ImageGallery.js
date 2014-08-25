@@ -11,7 +11,7 @@ var ImageGallery = {
 		this.getImages();
 		
 		jQuery(window).scroll(function (e) {
-			if (thisObj.loading !== true && (jQuery(document).scrollTop() + jQuery(document).height()) > jQuery('div.gallery-image:last-of-type').offset().top) {
+			if (thisObj.loading !== true && (jQuery(document).scrollTop() + jQuery(window).height()) > jQuery('div.gallery-image:last-of-type').offset().top) {
 				thisObj.loading = true;
 				thisObj.showLoader();
 				thisObj.getImages();

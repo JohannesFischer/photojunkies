@@ -37,6 +37,17 @@ class PhotoBlogEntry extends BlogEntry {
 		return $fields;
 	}
 	
+	public function onBeforeDelete() {
+		// delete has many relation
+		$images = $this->Images();
+		
+		foreach($images as $image) {
+			$image->delete();
+		}
+	 
+		parent::onBeforeDelete();
+	  }
+	
 	public function onBeforeWrite() {
 		// add space when there's none after a comma
 		if ($this->Tags) {

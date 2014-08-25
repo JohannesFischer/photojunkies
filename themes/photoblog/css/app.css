@@ -230,6 +230,8 @@ h2,
       background-color: black;
       background: rgba(0, 0, 0, 0.8);
       text-transform: uppercase; }
+    .gallery-image .overlay p {
+      padding: 0 20px; }
     .gallery-image .overlay a {
       background: #000;
       color: #fff;
